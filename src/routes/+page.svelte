@@ -84,7 +84,7 @@
 </section>
 
 <!-- ── About ───────────────────────────────────────────── -->
-<section class="about">
+<section class="about some">
   <div class="container">
     <h2 class="section-title">About me</h2>
     <div class="about-grid">
