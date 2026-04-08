@@ -1,0 +1,63 @@
+/* ─── Design tokens ─────────────────────────────────────── */
+:root {
+  --color-bg:         #ffffff;
+  --color-surface:    #f5f0fa;
+  --color-border:     #d9cce8;
+
+  --color-text:       #1c1425;
+  --color-text-muted: #6b5880;
+
+  --color-accent:     #a700c3;
+  --color-accent-low: #ebc9f3;
+  --color-accent-high:#4e0e5b;
+
+  --color-gray-1:     #f2e9fd;
+  --color-gray-2:     #c7bdd5;
+  --color-gray-3:     #9581ae;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --max-width: 780px;
+  --spacing-section: 5rem;
+}
+
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.7;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
