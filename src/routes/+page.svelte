@@ -13,12 +13,12 @@
     // 	title: 'Pensieve',
     // 	description: 'A collection of canvas boards — visual spaces for exploring different topics.',
     // },
-    // {
-    // 	href: '/quotes',
-    // 	emoji: '💬',
-    // 	title: 'Quotes',
-    // 	description: 'Lines from books, people, and the internet that stuck with me.',
-    // },
+    {
+      href: "/quotes",
+      emoji: "💬",
+      title: "Quotes",
+      description: "Just some quotes I found interesting enough to copy-paste.",
+    },
   ];
 
   const interests = [

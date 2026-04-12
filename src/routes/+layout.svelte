@@ -7,7 +7,7 @@
   const nav = [
     { href: "/blog", label: "Blog" },
     // { href: '/pensieve', label: 'Pensieve' },
-    // { href: '/quotes',   label: 'Quotes'   },
+    { href: '/quotes',   label: 'Quotes'   },
   ];
 </script>
 
