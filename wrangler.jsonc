@@ -2,17 +2,23 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "svelte-site",
   "compatibility_date": "2026-04-08",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "main": ".svelte-kit/cloudflare/_worker.js",
   "assets": {
     "binding": "ASSETS",
-    "directory": ".svelte-kit/cloudflare"
+    "directory": ".svelte-kit/cloudflare",
   },
   "workers_dev": true,
   "preview_urls": true,
   "observability": {
-    "enabled": true
-  }
+    "enabled": true,
+  },
+  "d1_databases": [
+    {
+      "binding": "quotes_db",
+      "database_name": "quotes-db",
+      "database_id": "f4d2cbbc-8cf7-4b81-8fcc-b73a9a511884",
+      "migrations_dir": "migrations",
+    },
+  ],
 }
