@@ -1,6 +1,11 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
+
 declare global {
+	// Augment the auto-generated Env with secrets not tracked in wrangler.jsonc
+	interface Env {
+		QUOTES_API_TOKEN?: string;
+	}
 	namespace App {
 		interface Platform {
 			env: Env;
