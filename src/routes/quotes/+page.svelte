@@ -3,6 +3,35 @@
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
+
+  let search = $state('');
+  let activeTags = $state<Set<string>>(new Set());
+  let favoritesOnly = $state(false);
+
+  const filtered = $derived.by(() => {
+    const q = search.trim().toLowerCase();
+    return data.quotes.filter((quote) => {
+      if (favoritesOnly && !quote.favorite) return false;
+      if (activeTags.size > 0 && !quote.tags.some((t) => activeTags.has(t))) return false;
+      if (q) {
+        const haystack = [quote.text, quote.author, quote.source ?? '', ...quote.tags]
+          .join(' ')
+          .toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  });
+
+  function toggleTag(tag: string) {
+    const next = new Set(activeTags);
+    if (next.has(tag)) {
+      next.delete(tag);
+    } else {
+      next.add(tag);
+    }
+    activeTags = next;
+  }
 </script>
 
 <svelte:head>
@@ -17,18 +46,39 @@
     </p>
   </header>
 
+  <div class="filters">
+    <input
+      class="search-input"
+      type="search"
+      placeholder="Search quotes…"
+      bind:value={search}
+      aria-label="Search quotes"
+    />
+    <button
+      class="favorites-toggle"
+      class:active={favoritesOnly}
+      type="button"
+      onclick={() => (favoritesOnly = !favoritesOnly)}
+      aria-pressed={favoritesOnly}
+    >
+      ★ Favorites only
+    </button>
+  </div>
+
   {#if data.quotes.length === 0}
     <p class="empty-state">No quotes yet.</p>
+  {:else if filtered.length === 0}
+    <p class="empty-state">No quotes match your filters.</p>
   {:else}
     <ul class="quotes-grid" aria-label="Quotes">
-      {#each data.quotes as quote (quote.id)}
+      {#each filtered as quote (quote.id)}
         <li>
           <a
             href="/quotes/{quote.id}"
             class="card-link"
             aria-label="Read quote by {quote.author}"
           >
-            <QuoteCard {quote} />
+            <QuoteCard {quote} onTagClick={toggleTag} activeTagFilter={activeTags} />
           </a>
         </li>
       {/each}
@@ -44,9 +94,7 @@
   }
 
   .page-header {
-    padding: 3rem 0 2.5rem;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 2.5rem;
+    padding: 3rem 0 2rem;
   }
 
   .page-title {
@@ -62,6 +110,68 @@
     color: var(--color-text-muted);
   }
 
+  /* ── Filters ─────────────────────────────────── */
+  .filters {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 1.25rem 0 2rem;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 2rem;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.925rem;
+    color: var(--color-text);
+    background: var(--color-bg);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .search-input:focus {
+    border-color: var(--color-accent);
+  }
+
+  .search-input::placeholder {
+    color: var(--color-gray-3);
+  }
+
+  .favorites-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .favorites-toggle:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .favorites-toggle.active {
+    background: var(--color-accent-low);
+    border-color: var(--color-accent);
+    color: var(--color-accent-high);
+  }
+
+  /* ── Grid ────────────────────────────────────── */
   .empty-state {
     color: var(--color-text-muted);
     padding: 3rem 0;
@@ -100,6 +210,11 @@
   @media (max-width: 500px) {
     .page-header {
       padding-top: 2rem;
+    }
+
+    .filters {
+      flex-direction: column;
+      align-items: stretch;
     }
   }
 </style>

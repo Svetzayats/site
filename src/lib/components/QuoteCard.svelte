@@ -4,9 +4,10 @@
   interface Props {
     quote: Quote;
     onTagClick?: (tag: string) => void;
+    activeTagFilter?: Set<string>;
   }
 
-  let { quote, onTagClick }: Props = $props();
+  let { quote, onTagClick, activeTagFilter }: Props = $props();
 </script>
 
 <article class="quote-card">
@@ -30,8 +31,9 @@
               {#if onTagClick}
                 <button
                   class="tag-chip"
+                  class:tag-chip--active={activeTagFilter?.has(tag)}
                   type="button"
-                  onclick={() => onTagClick(tag)}>{tag}</button
+                  onclick={(e) => { e.preventDefault(); e.stopPropagation(); onTagClick(tag); }}>{tag}</button
                 >
               {:else}
                 <span class="tag-chip">{tag}</span>
@@ -125,7 +127,8 @@
     cursor: pointer;
   }
 
-  button.tag-chip:hover {
+  button.tag-chip:hover,
+  button.tag-chip--active {
     background: var(--color-accent);
     color: #fff;
   }
