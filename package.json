@@ -25,6 +25,7 @@
     "@sveltejs/adapter-cloudflare": "^7.2.8",
     "@sveltejs/kit": "^2.50.2",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@types/html2canvas": "^1.0.0",
     "@types/node": "^22",
     "@vitest/browser-playwright": "^4.1.0",
     "eslint": "^9.39.2",
@@ -42,5 +43,8 @@
     "vitest": "^4.1.0",
     "vitest-browser-svelte": "^2.0.2",
     "wrangler": "^4.81.0"
+  },
+  "dependencies": {
+    "html2canvas": "^1.4.1"
   }
 }

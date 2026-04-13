@@ -1,5 +1,6 @@
 <script lang="ts">
   import QuoteCard from '$lib/components/QuoteCard.svelte';
+  import { exportQuoteAsImage } from '$lib/image-export';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -11,6 +12,10 @@
     : quote.text;
 
   let copyLabel = $state('Copy link');
+  let imageLabel = $state('Copy as image');
+  let imageError = $state<string | null>(null);
+
+  let cardElement = $state<HTMLElement | null>(null);
 
   async function copyLink() {
     try {
@@ -20,6 +25,20 @@
     } catch {
       copyLabel = 'Copy failed';
       setTimeout(() => (copyLabel = 'Copy link'), 2000);
+    }
+  }
+
+  async function saveImage() {
+    if (!cardElement) return;
+    imageLabel = 'Working…';
+    imageError = null;
+    try {
+      const result = await exportQuoteAsImage(cardElement, `quote-${quote.id}.png`);
+      imageLabel = result === 'clipboard' ? 'Copied!' : 'Downloaded!';
+      setTimeout(() => (imageLabel = 'Copy as image'), 2000);
+    } catch (err) {
+      imageError = err instanceof Error ? err.message : 'Failed to generate image';
+      imageLabel = 'Copy as image';
     }
   }
 </script>
@@ -36,7 +55,7 @@
     <a href="/quotes">← Quotes</a>
   </nav>
 
-  <div class="card-wrap">
+  <div class="card-wrap" bind:this={cardElement}>
     <QuoteCard {quote} />
   </div>
 
@@ -44,7 +63,19 @@
     <button class="btn-action" type="button" onclick={copyLink}>
       {copyLabel}
     </button>
+    <button
+      class="btn-action"
+      type="button"
+      onclick={saveImage}
+      disabled={imageLabel === 'Working…'}
+    >
+      {imageLabel}
+    </button>
   </div>
+
+  {#if imageError}
+    <p class="image-error" role="alert">{imageError}</p>
+  {/if}
 </div>
 
 <style>
@@ -85,7 +116,6 @@
     display: flex;
     gap: 0.75rem;
     margin-top: 1.5rem;
-    padding-bottom: 4rem;
     flex-wrap: wrap;
   }
 
@@ -105,8 +135,25 @@
     transition: border-color 0.15s ease, color 0.15s ease;
   }
 
-  .btn-action:hover {
+  .btn-action:hover:not(:disabled) {
     border-color: var(--color-accent);
     color: var(--color-accent);
+  }
+
+  .btn-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .image-error {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: #c0392b;
+  }
+
+  /* padding-bottom on the last child so footer has breathing room */
+  .image-error,
+  .actions {
+    padding-bottom: 4rem;
   }
 </style>
