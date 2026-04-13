@@ -88,7 +88,7 @@
 
 <style>
   .container {
-    max-width: var(--max-width);
+    max-width: min(1280px, 95vw);
     margin: 0 auto;
     padding: 0 1.5rem;
   }
@@ -180,16 +180,19 @@
 
   .quotes-grid {
     list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.25rem;
+    columns: 3 280px;
+    column-gap: 1.25rem;
     padding-bottom: 4rem;
+  }
+
+  .quotes-grid li {
+    break-inside: avoid;
+    margin-bottom: 1.25rem;
   }
 
   .card-link {
     display: block;
     color: inherit;
-    height: 100%;
   }
 
   .card-link:hover {
@@ -201,12 +204,6 @@
     box-shadow: 0 4px 16px rgba(167, 0, 195, 0.08);
   }
 
-  @media (max-width: 640px) {
-    .quotes-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
   @media (max-width: 500px) {
     .page-header {
       padding-top: 2rem;
@@ -215,6 +212,10 @@
     .filters {
       flex-direction: column;
       align-items: stretch;
+    }
+
+    .quotes-grid {
+      columns: 1;
     }
   }
 </style>
