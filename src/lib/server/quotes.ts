@@ -1,7 +1,7 @@
 export interface Quote {
 	id: string;
 	text: string;
-	author: string;
+	author: string | null;
 	source: string | null;
 	favorite: boolean;
 	tags: string[];
@@ -10,7 +10,7 @@ export interface Quote {
 
 export interface CreateQuoteInput {
 	text: string;
-	author: string;
+	author?: string;
 	source?: string;
 	favorite?: boolean;
 	tags?: string[];
@@ -73,6 +73,7 @@ export async function createQuote(db: D1Database, input: CreateQuoteInput): Prom
 	const id = crypto.randomUUID();
 	const created_at = new Date().toISOString();
 	const favorite = input.favorite ? 1 : 0;
+	const author = input.author ?? null;
 	const source = input.source ?? null;
 	const tags = input.tags ?? [];
 
@@ -80,7 +81,7 @@ export async function createQuote(db: D1Database, input: CreateQuoteInput): Prom
 		.prepare(
 			'INSERT INTO quotes (id, text, author, source, favorite, created_at) VALUES (?, ?, ?, ?, ?, ?)',
 		)
-		.bind(id, input.text, input.author, source, favorite, created_at)
+		.bind(id, input.text, author, source, favorite, created_at)
 		.run();
 
 	if (tags.length > 0) {
@@ -93,7 +94,7 @@ export async function createQuote(db: D1Database, input: CreateQuoteInput): Prom
 	return {
 		id,
 		text: input.text,
-		author: input.author,
+		author,
 		source,
 		favorite: favorite === 1,
 		tags,

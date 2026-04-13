@@ -127,7 +127,7 @@ describe('POST /api/quotes', () => {
 
 	it('returns 400 when body is missing required fields', async () => {
 		const response = await POST({
-			request: makeRequest({ text: 'No author here' }, `Bearer ${SECRET}`),
+			request: makeRequest({ author: 'No text here' }, `Bearer ${SECRET}`),
 			platform: makePlatform(SECRET),
 		} as Parameters<typeof POST>[0]);
 

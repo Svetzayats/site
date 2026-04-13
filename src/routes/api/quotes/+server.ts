@@ -35,16 +35,15 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	if (
 		typeof body !== 'object' ||
 		body === null ||
-		typeof (body as Record<string, unknown>).text !== 'string' ||
-		typeof (body as Record<string, unknown>).author !== 'string'
+		typeof (body as Record<string, unknown>).text !== 'string'
 	) {
-		return json({ error: 'Missing required fields: text, author' }, { status: 400 });
+		return json({ error: 'Missing required fields: text' }, { status: 400 });
 	}
 
 	const input = body as Record<string, unknown>;
 	const quote = await createQuote(db, {
 		text: input.text as string,
-		author: input.author as string,
+		author: typeof input.author === 'string' ? input.author : undefined,
 		source: typeof input.source === 'string' ? input.source : undefined,
 		favorite: typeof input.favorite === 'boolean' ? input.favorite : false,
 		tags: Array.isArray(input.tags) ? (input.tags as string[]) : [],
