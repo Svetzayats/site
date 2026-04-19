@@ -110,8 +110,9 @@
 
   .post-meta {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
     font-size: 0.8rem;
     color: var(--color-text-muted);
     margin-top: 0.15rem;
@@ -119,6 +120,7 @@
 
   .tags {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.4rem;
   }
 
@@ -128,5 +130,6 @@
     padding: 0.15rem 0.5rem;
     border-radius: var(--radius-sm);
     font-size: 0.75rem;
+    white-space: nowrap;
   }
 </style>

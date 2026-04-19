@@ -16,13 +16,18 @@ const CALLOUT_ICONS: Record<string, string> = {
 };
 
 export function parseCallouts(html: string): string {
+	// Captures: [!TYPE] optional title text \n rest of paragraph \n block siblings
 	return html.replace(
-		/<blockquote>\s*<p>\[!(NOTE|TIP|WARNING)\]\s*([\s\S]*?)<\/p>\s*<\/blockquote>/g,
-		(_, type, content) => {
+		/<blockquote>\s*<p>\[!(NOTE|TIP|WARNING)\][ \t]*([^\n]*)\n?([\s\S]*?)<\/p>([\s\S]*?)<\/blockquote>/gi,
+		(_, type, titleText, restInline, blockContent) => {
 			const t = type.toLowerCase();
-			const label = type.charAt(0) + type.slice(1).toLowerCase();
+			const fallbackLabel = type.charAt(0) + type.slice(1).toLowerCase();
 			const icon = CALLOUT_ICONS[t] ?? '';
-			return `<div class="callout callout-${t}"><div class="callout-icon">${icon}</div><div class="callout-body"><span class="callout-label">${label}</span><p>${content.trim()}</p></div></div>`;
+			const title = titleText.trim() || fallbackLabel;
+			const rest = restInline.trim();
+			const block = blockContent.trim();
+			const body = (rest ? `<p>${rest}</p>` : '') + block;
+			return `<div class="callout callout-${t}"><div class="callout-header"><div class="callout-icon">${icon}</div><span class="callout-label">${title}</span></div>${body ? `<div class="callout-body">${body}</div>` : ''}</div>`;
 		},
 	);
 }
