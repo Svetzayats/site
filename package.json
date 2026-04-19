@@ -45,6 +45,10 @@
     "wrangler": "^4.81.0"
   },
   "dependencies": {
-    "html2canvas": "^1.4.1"
+    "@codemirror/lang-markdown": "^6.5.0",
+    "codemirror": "^6.0.2",
+    "gray-matter": "^4.0.3",
+    "html2canvas": "^1.4.1",
+    "marked": "^18.0.2"
   }
 }
