@@ -8,6 +8,7 @@ function headers(token: string) {
 		Authorization: `Bearer ${token}`,
 		Accept: 'application/vnd.github+json',
 		'Content-Type': 'application/json',
+		'User-Agent': 'svetzayats-site/1.0',
 	};
 }
 
