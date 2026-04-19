@@ -12,8 +12,13 @@ function headers(token: string) {
 }
 
 export async function githubGet(path: string, token: string) {
-	const res = await fetch(`${BASE}/${path}`, { headers: headers(token) });
-	if (!res.ok) return null;
+	const url = `${BASE}/${path}`;
+	const res = await fetch(url, { headers: headers(token) });
+	if (!res.ok) {
+		const body = await res.text().catch(() => '(unreadable)');
+		console.error(`[github] GET ${url} → ${res.status}: ${body}`);
+		return null;
+	}
 	return res.json() as Promise<{ sha: string; content: string }>;
 }
 
