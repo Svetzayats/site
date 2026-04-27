@@ -1,0 +1,94 @@
+---
+title: On Kiro, engineering habits, and trust issues with code
+date: 2026-04-26
+tags: [ai, kiro, documentation]
+excerpt: Another post about AI on the internet: some thoughts about Kiro, an AI-powered IDE from Amazon, and about my personal approach to using AI
+---
+
+I visited "AWS Community on Tour" in Raleigh — and that was fascinating, kudos to all the organizers. It was about hands-on experience with AI agentic flow, and they introduced Kiro — an AI-featured IDE — and the whole room tried to build a simple JS game (ok, almost all people in the room; I didn't take my computer with me, so I didn't build the game, I just enjoyed the meetup and asked questions). I had a great evening and spent the next hour writing down my thoughts about Kiro and AI coding.
+![aws community on tour meetup in raleigh](https://media.licdn.com/dms/image/v2/D4D22AQFwdT_9lqg0ng/feedshare-shrink_2048_1536/B4DZ3BDTm8IEAo-/0/1777060363302?e=1778716800&v=beta&t=sFh3qOY5VIB3Wbul6pG3K0IGcCjt68Jr3qpnq8-A47s)
+
+## What is Kiro
+[Kiro](https://kiro.dev/) is an IDE, that "brings structure to AI coding with spec-driven development". I tried Kiro before and loved their idea about starting with a spec and having specs as a first-class citizen for coding. I didn't try "vibe" mode, I experimented only with "specs" mode — and it changed my approach to how I build things with AI as an engineer.
+
+**Cool things about Kiro**:
+
+- in specs mode it starts with generating documentation and specs for the project, it's a bunch of .md files and you can edit them easily (and don't spend tokens on simple updates)
+- you have a pretty nice UI for the implementation phase — a dynamically updated to-do list (tasks) where you can see what tasks were finished and what is in progress
+- checkpoints for all updates — so it's really easy to roll back changes you don't like, right in chat
+- steering docs (like skills) that can help you make your agent really customized for you
+
+You can read about Kiro powers (I like naming) in [their documentation](https://kiro.dev/powers/); in my understanding it's just a combination of MCP servers, instructions for AI, and skills, but in another shell and with UI.
+If you want, you can try building with Kiro a game with a guided workshop from AWS on your own: [materials for workshop](https://catalog.workshops.aws/kiro-express/en-US/start-workshop). 
+
+But let's talk a little bit more about specs and why it might be important. 
+
+## Specs-first approach, or Think and document
+I try to develop this habit in myself and in every team I work with: **start a task not with coding, but with thinking** (what problem are we trying to solve), **designing** (how can we solve it and what are the trade-offs), **and documenting**.
+
+And document not only architecture! Of course, a good diagram can help a lot — not only your colleagues who will deal with it, but also future you, when after a year you need to remember how this magic works under the hood. Document also your expectations and how you plan to test. It's about having functional and non-functional requirements, but also a plan for how you can check that your solution matches them.
+
+
+Why is it great to write down your expectations? 
+First of all, it helps improve your skill of estimation — estimation of needed work, level of complexity, time. 
+But it also helps you later understand what went wrong and (most importantly) what to consider next time to prevent problems. 
+
+And everything should be written down, because our memory is not very stable — it lies to you a lot. With hindsight, it's easy to believe that you knew how it would go from the beginning; but if everything is written down somewhere, you might be surprised how differently you saw the problem and situation.
+
+_(Of course, you might be the one who always sees the full picture, foresees complications, and controls everything around — in that case you can skip writing things down, because you're a fantasy creature and you shouldn't waste your magic potential on dealing with human things.)_
+
+> [!TIP] For mere mortals and engineers:
+> - understand the problem
+> - develop functional and non-functional requirements
+> - have a plan for how you will test it and what should be considered success — what criteria should be met
+> - design the solution
+> - document every step
+>   
+> It really helps. 
+
+
+It looks like a lot of time spent on documentation and not building, but it pays for itself quickly. 
+
+You don't need to answer questions about your solution — you share documentation, and people can easily grasp the concept. If they have questions — you just answer them in the doc, so next time those questions are already answered.
+
+It's easy to restore the context — just look at the doc.
+
+And, of course, since we started talking about using AI — your AI agent will be glad to use it as a source and spend fewer tokens on reading the full codebase and trying to connect all the dots from code.
+
+As you can see, I'm a big fan of having a documented decision-making process, requirements, and specs — so no wonder I liked the Kiro approach. It felt like an IDE made by engineers with ideas very close to mine.
+
+At the same time, I don't remember the particular reason why I abandoned Kiro (see? would be nice to have it documented; I hope I'll be better next time), but after the meetup I planned to give Kiro one more chance. At home I realized that I don't actually have space on my computer for a second IDE right now, and for now I'm stuck with Zed (without any particular reason, I just like their interface). **If somebody wants to try Kiro — highly recommend experimenting with it, and message me if you need a promo code for extra tokens ;)**
+
+My main question though is: **what is the difference between using Kiro and using Zed/VSCode/anything with defined skills?** The UI is nicer and it provides you with a defined approach from the start (specs), but is there really something special about it? We'll see — I plan to check in on Kiro's progress from time to time.
+
+Side note: I still don't expect IDEs to die, honestly. There are people who use only chat and code a lot, some of them build their own harness to avoid dealing with code directly — and that's really cool. But at the same level as I enjoy building something and seeing results — I enjoy working with code. Also, for critical pieces of code, you should go and look at it. You have to understand, review, and take responsibility. **I'm definitely not ready to take responsibility for something I haven't seen, where only some thing — non-deterministic and constantly contradicting itself — told me it works and everything is fine.** Maybe I'm a person with trust issues, but I prefer to read before I sign.
+
+## Agentic is not for me yet
+And yes, that's the answer to the unasked question of how I build things with AI as an engineer.
+I usually start with a discovery phase and **work with the agent as a partner** — brainstorming ideas, possible solutions, thinking about trade-offs, learning stuff.
+
+After that I have my requirements and high-level architecture — and it's all documented.
+
+I use **Matt Pocock's skills** for writing a PRD, and also use a skill for converting the PRD to a plan. And then build it task by task. At the implementation step I always apply a TDD skill and try to highlight different use cases, corner cases, etc.
+
+I love this approach because I learn a lot in the process and it's almost always a really efficient partnership.
+At the same time I don't think I'm ready for the fully agentic approach — I just love to dive into things and build them, I enjoy development. I also want to be in charge — I want to be sure that everything that's built, I could have built without AI, but it would have taken longer. 
+
+Not a big fan of the idea of running 10 agents in parallel and being their manager — if I wanted to be a manager, I would just... you know... become a manager.
+
+**My favorite use cases for AI**
+
+- **AWS infrastructure debugging**: give Claude credentials with read access and ask questions, debug — for example, why traffic doesn't go to CloudFront but goes straight to our ALB. Though you should be careful here: Claude imagines a lot even with access to all the resources. It says: "oh, I can clearly see the root of the problem" — and when you point out that it definitely isn't — it says, "oh, my apologies, let me check more thoroughly." (Overall, same as with people.)
+- **Trying new technologies** and asking it to explain everything — it works pretty well together with reading the docs and understanding main concepts. It can be mistaken here too, or try to give you old API versions, things like that. Still very valuable, and it helps a lot with personal projects — for example, I'd wanted to try Svelte for a long time and I migrated my personal website from Astro to SvelteKit using Claude — in one day.
+- **Writing tests and documentation**. Although here is the danger zone: AI can generate a lot of stupid tests and documentation that looks good but is not actually accurate. As a person and a specialist, you are responsible for guiding AI to do this job well — writing tests that actually test real scenarios instead of dozens of pointless checks, or one short clear list instead of 5 paragraphs of fluff in your documentation.
+
+At the end of the day, I think the most important skill you could develop as an engineer (and as a human being in general) — and can work on right now, as always — is thinking. It will always be wanted and needed, so let's just practice it more.
+
+> [!NOTE] Fun fact for those who made it to the end
+> Only a couple of people were able to finish the game generation. More than 30 participants, the simplest case of generation with already fine-tuned (I think) prompts and ready assets — and only 2 successfully finished after 2 hours. It seems we still have some time before AI fully replaces us all.
+
+### Might be interesting links
+
+- [Skills applicable not only for AI](https://github.com/forrestchang/andrej-karpathy-skills)
+- [post by Karpathy, interesting read](https://x.com/karpathy/status/2015883857489522876)
+- [Skills by Matt Pocock](https://github.com/mattpocock/skills)
