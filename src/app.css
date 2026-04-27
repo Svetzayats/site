@@ -254,6 +254,7 @@ img {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  line-height: 1;
 }
 
 .prose .callout-body p { margin: 0; }
