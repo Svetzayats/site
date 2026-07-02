@@ -8,24 +8,7 @@
 
   const STORAGE_KEY = 'bingo_jm_state';
 
-  const cards = [
-    '113 years company',
-    'Progress',
-    'Innovative',
-    'Disrupt / disruptive / disruptors',
-    'Customer focused',
-    'Personalized / customized experience',
-    'Unstoppable',
-    'For jewelers',
-    'Extremely hard',
-    'Always for our customers',
-    'Foundation',
-    'Unifying / unified',
-    'Agent / AI',
-    'One platform',
-  ];
-
-  function loadState(): Set<number> {
+  function loadState(): Set<string> {
     if (!browser) return new Set();
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -37,12 +20,13 @@
     }
   }
 
-  function saveState(marked: Set<number>) {
+  function saveState(marked: Set<string>) {
     if (!browser) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...marked]));
   }
 
-  let marked = $state<Set<number>>(new Set());
+  let marked = $state<Set<string>>(new Set());
+  let addText = $state('');
 
   $effect(() => {
     if (authenticated) {
@@ -50,12 +34,12 @@
     }
   });
 
-  function toggle(i: number) {
+  function toggle(id: string) {
     const next = new Set(marked);
-    if (next.has(i)) {
-      next.delete(i);
+    if (next.has(id)) {
+      next.delete(id);
     } else {
-      next.add(i);
+      next.add(id);
     }
     marked = next;
     saveState(next);
@@ -74,23 +58,43 @@
       <button class="reset-btn" onclick={reset}>Reset</button>
     </div>
     <div class="grid">
-      {#each cards as card, i}
+      {#each data.cards as card (card.id)}
         <button
           class="card"
-          class:marked={marked.has(i)}
-          onclick={() => toggle(i)}
+          class:marked={marked.has(card.id)}
+          onclick={() => toggle(card.id)}
         >
-          <span class="card-text">{card}</span>
-          {#if marked.has(i)}
+          <span class="card-text">{card.text}</span>
+          {#if marked.has(card.id)}
             <span class="check" aria-hidden="true">✓</span>
           {/if}
         </button>
       {/each}
     </div>
+    <form
+      method="POST"
+      action="?/addCard"
+      class="add-form"
+      use:enhance={() => {
+        return ({ update }) => {
+          addText = '';
+          update();
+        };
+      }}
+    >
+      <input
+        type="text"
+        name="text"
+        bind:value={addText}
+        placeholder="New card text…"
+        required
+      />
+      <button type="submit">Add</button>
+    </form>
   </div>
 {:else}
   <div class="wrap">
-    <form method="POST" use:enhance class="login-form">
+    <form method="POST" action="?/login" use:enhance class="login-form">
       {#if form?.error}
         <p class="error">{form.error}</p>
       {/if}
@@ -246,5 +250,33 @@
     right: 0.55rem;
     font-size: 0.75rem;
     opacity: 0.85;
+  }
+
+  /* ── Add card form ── */
+  .add-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .add-form input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .add-form button {
+    padding: 0.6rem 1rem;
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .add-form button:hover {
+    background: var(--color-accent-high);
   }
 </style>
