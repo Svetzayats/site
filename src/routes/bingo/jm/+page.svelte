@@ -1,13 +1,93 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { browser } from '$app/environment';
   import type { ActionData, PageData } from './$types';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
   let authenticated = $derived(data.authenticated || form?.authenticated === true);
+
+  const STORAGE_KEY = 'bingo_jm_state';
+
+  const cards = [
+    '113 years company',
+    'Progress',
+    'Innovative',
+    'Disrupt / disruptive / disruptors',
+    'Customer focused',
+    'Personalized / customized experience',
+    'Unstoppable',
+    'For jewelers',
+    'Extremely hard',
+    'Always for our customers',
+    'Foundation',
+    'Unifying / unified',
+    'Agent / AI',
+    'One platform',
+  ];
+
+  function loadState(): Set<number> {
+    if (!browser) return new Set();
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return new Set();
+      const arr = JSON.parse(raw);
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function saveState(marked: Set<number>) {
+    if (!browser) return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...marked]));
+  }
+
+  let marked = $state<Set<number>>(new Set());
+
+  $effect(() => {
+    if (authenticated) {
+      marked = loadState();
+    }
+  });
+
+  function toggle(i: number) {
+    const next = new Set(marked);
+    if (next.has(i)) {
+      next.delete(i);
+    } else {
+      next.add(i);
+    }
+    marked = next;
+    saveState(next);
+  }
+
+  function reset() {
+    marked = new Set();
+    if (browser) localStorage.removeItem(STORAGE_KEY);
+  }
 </script>
 
 {#if authenticated}
-  <!-- content goes here -->
+  <div class="page">
+    <div class="header">
+      <h1>Bingo</h1>
+      <button class="reset-btn" onclick={reset}>Reset</button>
+    </div>
+    <div class="grid">
+      {#each cards as card, i}
+        <button
+          class="card"
+          class:marked={marked.has(i)}
+          onclick={() => toggle(i)}
+        >
+          <span class="card-text">{card}</span>
+          {#if marked.has(i)}
+            <span class="check" aria-hidden="true">✓</span>
+          {/if}
+        </button>
+      {/each}
+    </div>
+  </div>
 {:else}
   <div class="wrap">
     <form method="POST" use:enhance class="login-form">
@@ -24,6 +104,7 @@
 {/if}
 
 <style>
+  /* ── Auth form ── */
   .wrap {
     display: flex;
     justify-content: center;
@@ -62,7 +143,7 @@
     outline-offset: -1px;
   }
 
-  button {
+  .login-form button {
     padding: 0.6rem 1rem;
     background: var(--color-accent);
     color: #fff;
@@ -73,12 +154,97 @@
     cursor: pointer;
   }
 
-  button:hover {
+  .login-form button:hover {
     background: var(--color-accent-high);
   }
 
   .error {
     font-size: 0.875rem;
     color: #dc2626;
+  }
+
+  /* ── Bingo board ── */
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .reset-btn {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    font-family: var(--font-sans);
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .reset-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-text-muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    padding: 1rem;
+    background: var(--color-bg);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    user-select: none;
+  }
+
+  .card:hover {
+    border-color: var(--color-accent);
+  }
+
+  .card.marked {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+  }
+
+  .card-text {
+    line-height: 1.3;
+  }
+
+  .check {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.55rem;
+    font-size: 0.75rem;
+    opacity: 0.85;
   }
 </style>
