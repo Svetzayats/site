@@ -76,7 +76,7 @@
   .scale-track {
     position: relative;
     height: 4px;
-    margin: 2.5rem 0.75rem 0.5rem;
+    margin: 2.5rem 0.75rem;
     background: var(--color-gray-1);
     border-radius: var(--radius-sm);
   }

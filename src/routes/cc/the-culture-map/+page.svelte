@@ -111,16 +111,36 @@
 
     <CultureScale
       title="Communicating"
-      leftLabel="Low Context"
-      rightLabel="High Context"
-      caption="Placeholder summary — what the Communicating scale measures, in a sentence or two."
+      leftLabel="Low-Context"
+      rightLabel="High-Context"
+      caption="Low-context: good communication is precise, simple, and clear — messages are taken at face value. High-context: good communication is nuanced and layered — messages are often implied rather than plainly expressed."
       countries={[
-        { code: "US", position: 12 },
-        { code: "DE", position: 22 },
-        { code: "FR", position: 55 },
-        { code: "BR", position: 68 },
-        { code: "IN", position: 80 },
-        { code: "JP", position: 94 },
+        { code: "US", position: 8 },
+        { code: "AU", position: 12 },
+        { code: "CA", position: 14 },
+        { code: "NL", position: 19 },
+        { code: "DE", position: 24 },
+        { code: "DK", position: 32 },
+        { code: "UK", position: 34 },
+        { code: "FI", position: 36 },
+        { code: "PL", position: 43 },
+        { code: "BR", position: 50 },
+        { code: "AR", position: 54 },
+        { code: "ES", position: 55 },
+        { code: "MX", position: 58 },
+        { code: "IT", position: 61 },
+        { code: "PE", position: 62 },
+        { code: "FR", position: 66 },
+        { code: "RU", position: 69 },
+        { code: "SG", position: 70 },
+        { code: "IN", position: 76 },
+        { code: "IR", position: 78 },
+        { code: "SA", position: 80 },
+        { code: "KE", position: 83 },
+        { code: "CN", position: 86 },
+        { code: "KR", position: 89 },
+        { code: "ID", position: 91 },
+        { code: "JP", position: 93 },
       ]}
       {visibleCodes}
     />
@@ -129,14 +149,212 @@
       title="Evaluating"
       leftLabel="Direct Negative Feedback"
       rightLabel="Indirect Negative Feedback"
-      caption="Placeholder summary — what the Evaluating scale measures, in a sentence or two."
+      caption="Direct: criticism is frank and blunt, not softened by positive comments, and may be given to an individual in front of a group. Indirect: criticism is soft, diplomatic, wrapped in positive messages, and given only in private."
       countries={[
-        { code: "DE", position: 8 },
-        { code: "FR", position: 28 },
-        { code: "US", position: 45 },
+        { code: "IL", position: 8 },
+        { code: "RU", position: 10 },
+        { code: "NL", position: 12 },
+        { code: "DE", position: 17 },
+        { code: "FR", position: 24 },
+        { code: "DK", position: 25 },
+        { code: "NO", position: 27 },
+        { code: "ES", position: 36 },
+        { code: "IT", position: 38 },
+        { code: "AU", position: 39 },
+        { code: "US", position: 50 },
+        { code: "CA", position: 53 },
+        { code: "UK", position: 54 },
+        { code: "AR", position: 58 },
         { code: "BR", position: 62 },
-        { code: "IN", position: 75 },
+        { code: "MX", position: 65 },
+        { code: "IN", position: 71 },
+        { code: "KE", position: 72 },
+        { code: "CN", position: 76 },
+        { code: "GH", position: 79 },
+        { code: "KR", position: 82 },
+        { code: "SA", position: 83 },
+        { code: "ID", position: 92 },
+        { code: "TH", position: 94 },
+        { code: "JP", position: 95 },
+      ]}
+      {visibleCodes}
+    />
+
+    <CultureScale
+      title="Persuading"
+      leftLabel="Principles-first"
+      rightLabel="Applications-first"
+      caption="Applications-first: arguments open with a fact, statement, or executive summary, then add supporting concepts as needed — practical and concrete, avoiding theory in business settings. Principles-first: arguments build the theory or concept first, then move to a conclusion — the underlying logic is what matters."
+      countries={[
+        { code: "IT", position: 10 },
+        { code: "FR", position: 11 },
+        { code: "ES", position: 18 },
+        { code: "RU", position: 20 },
+        { code: "DE", position: 32 },
+        { code: "BR", position: 40 },
+        { code: "AR", position: 45 },
+        { code: "MX", position: 51 },
+        { code: "SE", position: 56 },
+        { code: "DK", position: 60 },
+        { code: "NL", position: 64 },
+        { code: "UK", position: 71 },
+        { code: "AU", position: 82 },
+        { code: "CA", position: 84 },
+        { code: "US", position: 92 },
+      ]}
+      {visibleCodes}
+    />
+
+    <CultureScale
+      title="Leading"
+      leftLabel="Egalitarian"
+      rightLabel="Hierarchical"
+      caption="Egalitarian: the ideal distance between boss and subordinate is low — the best boss is a facilitator among equals, structures are flat, and communication often skips hierarchical lines. Hierarchical: the ideal distance is high — the best boss is a strong director who leads from the front, status matters, and communication follows set hierarchical lines."
+      countries={[
+        { code: "SE", position: 7 },
+        { code: "DK", position: 9 },
+        { code: "NL", position: 11 },
+        { code: "IL", position: 18 },
+        { code: "AU", position: 20 },
+        { code: "CA", position: 30 },
+        { code: "FI", position: 32 },
+        { code: "US", position: 39 },
+        { code: "UK", position: 44 },
+        { code: "DE", position: 53 },
+        { code: "BR", position: 55 },
+        { code: "ES", position: 62 },
+        { code: "FR", position: 63 },
+        { code: "IT", position: 65 },
+        { code: "MX", position: 72 },
+        { code: "PL", position: 73 },
+        { code: "RU", position: 77 },
+        { code: "PE", position: 78 },
+        { code: "SA", position: 83 },
+        { code: "IN", position: 85 },
+        { code: "CN", position: 86 },
+        { code: "KR", position: 92 },
+        { code: "JP", position: 94 },
+        { code: "NG", position: 96 },
+      ]}
+      {visibleCodes}
+    />
+
+    <CultureScale
+      title="Deciding"
+      leftLabel="Consensual"
+      rightLabel="Top-down"
+      caption="Consensual: decisions are made in groups through unanimous agreement. Top-down: decisions are made by individuals, usually the boss."
+      countries={[
+        { code: "JP", position: 6 },
+        { code: "SE", position: 12 },
+        { code: "NL", position: 20 },
+        { code: "DE", position: 34 },
+        { code: "UK", position: 46 },
+        { code: "US", position: 56 },
+        { code: "BR", position: 61 },
+        { code: "FR", position: 65 },
+        { code: "IT", position: 69 },
+        { code: "RU", position: 80 },
+        { code: "IN", position: 84 },
+        { code: "CN", position: 88 },
+        { code: "NG", position: 94 },
+      ]}
+      {visibleCodes}
+    />
+
+    <CultureScale
+      title="Trusting"
+      leftLabel="Task-based"
+      rightLabel="Relationship-based"
+      caption="Task-based: trust is built through business-related activities — work relationships form and end easily based on practicality; doing good, reliable work is enough. Relationship-based: trust is built through sharing meals, time, and personal connection — relationships build slowly, and trust follows from truly knowing someone."
+      countries={[
+        { code: "US", position: 5 },
+        { code: "NL", position: 12 },
+        { code: "DK", position: 13 },
+        { code: "AU", position: 20 },
+        { code: "DE", position: 23 },
+        { code: "FI", position: 27 },
+        { code: "UK", position: 34 },
+        { code: "AT", position: 43 },
+        { code: "PL", position: 45 },
+        { code: "FR", position: 56 },
+        { code: "ES", position: 61 },
+        { code: "IT", position: 65 },
+        { code: "JP", position: 71 },
+        { code: "RU", position: 73 },
+        { code: "MX", position: 75 },
+        { code: "TR", position: 78 },
+        { code: "TH", position: 81 },
+        { code: "BR", position: 83 },
+        { code: "CN", position: 87 },
+        { code: "IN", position: 89 },
+        { code: "SA", position: 92 },
+        { code: "NG", position: 94 },
+      ]}
+      {visibleCodes}
+    />
+
+    <CultureScale
+      title="Disagreeing"
+      leftLabel="Confrontational"
+      rightLabel="Avoids Confrontation"
+      caption="Confrontational: disagreement and debate are seen as positive for the team — open confrontation won't harm the relationship. Avoids confrontation: disagreement and debate are seen as negative for the team — open confrontation would break group harmony or damage the relationship."
+      countries={[
+        { code: "IL", position: 8 },
+        { code: "FR", position: 12 },
+        { code: "DE", position: 17 },
+        { code: "RU", position: 19 },
+        { code: "NL", position: 21 },
+        { code: "ES", position: 27 },
+        { code: "DK", position: 28 },
+        { code: "IT", position: 34 },
+        { code: "AU", position: 38 },
+        { code: "US", position: 47 },
+        { code: "UK", position: 49 },
+        { code: "BR", position: 57 },
+        { code: "SG", position: 61 },
+        { code: "SE", position: 63 },
+        { code: "MX", position: 65 },
+        { code: "IN", position: 70 },
+        { code: "SA", position: 72 },
+        { code: "PE", position: 73 },
+        { code: "CN", position: 77 },
+        { code: "GH", position: 81 },
+        { code: "TH", position: 88 },
+        { code: "ID", position: 90 },
         { code: "JP", position: 92 },
+      ]}
+      {visibleCodes}
+    />
+
+    <CultureScale
+      title="Scheduling"
+      leftLabel="Linear-time"
+      rightLabel="Flexible-time"
+      caption="Linear-time: project steps happen sequentially, one task at a time, with no interruptions — the focus is on the deadline and sticking to the schedule. Flexible-time: project steps happen fluidly, with many things handled at once and interruptions accepted — the focus is on adaptability over organization."
+      countries={[
+        { code: "DE", position: 7 },
+        { code: "CH", position: 8 },
+        { code: "JP", position: 16 },
+        { code: "SE", position: 19 },
+        { code: "US", position: 25 },
+        { code: "DK", position: 26 },
+        { code: "NL", position: 27 },
+        { code: "UK", position: 31 },
+        { code: "CZ", position: 41 },
+        { code: "PL", position: 43 },
+        { code: "FR", position: 55 },
+        { code: "ES", position: 61 },
+        { code: "IT", position: 64 },
+        { code: "RU", position: 66 },
+        { code: "MX", position: 72 },
+        { code: "TR", position: 76 },
+        { code: "BR", position: 78 },
+        { code: "CN", position: 83 },
+        { code: "IN", position: 90 },
+        { code: "KE", position: 92 },
+        { code: "SA", position: 94 },
+        { code: "NG", position: 96 },
       ]}
       {visibleCodes}
     />
