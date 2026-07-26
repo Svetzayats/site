@@ -3,9 +3,22 @@
   import { SvelteSet } from "svelte/reactivity";
   import CultureScale from "$lib/components/CultureScale.svelte";
   import CultureScaleFilter from "$lib/components/CultureScaleFilter.svelte";
+  import ScaleFilter from "$lib/components/ScaleFilter.svelte";
   import { CULTURE_COUNTRIES } from "$lib/data/culture-countries";
 
+  const SCALE_TITLES = [
+    "Communicating",
+    "Evaluating",
+    "Persuading",
+    "Leading",
+    "Deciding",
+    "Trusting",
+    "Disagreeing",
+    "Scheduling",
+  ] as const;
+
   let visibleCodes = new SvelteSet<string>();
+  let visibleScales = new SvelteSet<string>(SCALE_TITLES);
 
   function toggleCountry(code: string) {
     if (visibleCodes.has(code)) {
@@ -21,6 +34,24 @@
     } else {
       for (const country of CULTURE_COUNTRIES) {
         visibleCodes.add(country.code);
+      }
+    }
+  }
+
+  function toggleScale(scale: string) {
+    if (visibleScales.has(scale)) {
+      visibleScales.delete(scale);
+    } else {
+      visibleScales.add(scale);
+    }
+  }
+
+  function showAllScales() {
+    if (visibleScales.size === SCALE_TITLES.length) {
+      visibleScales.clear();
+    } else {
+      for (const scale of SCALE_TITLES) {
+        visibleScales.add(scale);
       }
     }
   }
@@ -103,12 +134,20 @@
   <section class="scales-section">
     <h2 class="section-title">Scales</h2>
 
+    <ScaleFilter
+      scales={SCALE_TITLES}
+      {visibleScales}
+      onToggle={toggleScale}
+      onShowAll={showAllScales}
+    />
+
     <CultureScaleFilter
       {visibleCodes}
       onToggle={toggleCountry}
       onShowAll={showAll}
     />
 
+    {#if visibleScales.has("Communicating")}
     <CultureScale
       title="Communicating"
       leftLabel="Low-Context"
@@ -144,7 +183,9 @@
       ]}
       {visibleCodes}
     />
+    {/if}
 
+    {#if visibleScales.has("Evaluating")}
     <CultureScale
       title="Evaluating"
       leftLabel="Direct Negative Feedback"
@@ -179,7 +220,9 @@
       ]}
       {visibleCodes}
     />
+    {/if}
 
+    {#if visibleScales.has("Persuading")}
     <CultureScale
       title="Persuading"
       leftLabel="Principles-first"
@@ -204,7 +247,9 @@
       ]}
       {visibleCodes}
     />
+    {/if}
 
+    {#if visibleScales.has("Leading")}
     <CultureScale
       title="Leading"
       leftLabel="Egalitarian"
@@ -238,7 +283,9 @@
       ]}
       {visibleCodes}
     />
+    {/if}
 
+    {#if visibleScales.has("Deciding")}
     <CultureScale
       title="Deciding"
       leftLabel="Consensual"
@@ -261,7 +308,9 @@
       ]}
       {visibleCodes}
     />
+    {/if}
 
+    {#if visibleScales.has("Trusting")}
     <CultureScale
       title="Trusting"
       leftLabel="Task-based"
@@ -293,7 +342,9 @@
       ]}
       {visibleCodes}
     />
+    {/if}
 
+    {#if visibleScales.has("Disagreeing")}
     <CultureScale
       title="Disagreeing"
       leftLabel="Confrontational"
@@ -326,7 +377,9 @@
       ]}
       {visibleCodes}
     />
+    {/if}
 
+    {#if visibleScales.has("Scheduling")}
     <CultureScale
       title="Scheduling"
       leftLabel="Linear-time"
@@ -358,6 +411,7 @@
       ]}
       {visibleCodes}
     />
+    {/if}
   </section>
 
   <div class="prose">
