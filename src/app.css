@@ -29,6 +29,16 @@
   --max-width: 780px;
   --content-width: 680px;
   --spacing-section: 5rem;
+
+  /* ─── Categorical palette (e.g. per-country badges) ────── */
+  --color-cat-1: #2563eb;
+  --color-cat-2: #d97706;
+  --color-cat-3: #059669;
+  --color-cat-4: #dc2626;
+  --color-cat-5: #7c3aed;
+  --color-cat-6: #0891b2;
+  --color-cat-7: #db2777;
+  --color-cat-8: #65a30d;
 }
 
 /* ─── Reset ─────────────────────────────────────────────── */
