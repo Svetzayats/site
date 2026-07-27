@@ -520,6 +520,7 @@
 
       <ExampleCard
         tag="Recommendation"
+        favorite
         title=""
         tilt="0.8deg"
         content="**Most misunderstandings can be avoided by defining a clear team culture that everyone agrees to apply**"
@@ -541,6 +542,7 @@
 
       <ExampleCard
         tag="Quote"
+        favorite
         title="Relativity"
         tilt="3deg"
         content="«...when examining how people from different cultures relate to one another, what matters is not the absolute position of either culture on the scale but rather the relative position of the two cultures»"
@@ -548,6 +550,7 @@
 
       <ExampleCard
         tag=""
+        favorite
         title="Fish & Water"
         tilt="-1.5deg"
         content="Two young fish encounter an older fish swimming the opposite way. He nods at them and says, «Morning, boys, how's the water?». On of the young fish asks after that another: «What the hell is water?»"
@@ -575,6 +578,7 @@
       />
       <ExampleCard
         tag="Communicating"
+        favorite
         title="American rule"
         tilt="3deg"
         content="«Tell them what you are going to tell them, then tell them, then tell them what you've told them»"
@@ -647,6 +651,7 @@
       />
       <ExampleCard
         wide
+        favorite
         tag="Evaluating"
         title="Deliberate understatement"
         tilt="1.65deg"
@@ -704,6 +709,7 @@
       />
       <ExampleCard
         tag="Example"
+        favorite
         title="Danes and egalitarian principles"
         tilt="0.8deg"
         content="Do not think you are better than others. Do not think you are smarter than others. Do not think you are more important than others. Do not think you are someone special"
@@ -793,6 +799,7 @@
 
       <ExampleCard
         tag="Disagreement"
+        favorite
         title=""
         tilt="2.3deg"
         content="If someone in my culture disagrees strongly with my idea, does that suggest they are disapproving of me or just of the idea?

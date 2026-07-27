@@ -7,15 +7,23 @@
     content: string;
     tilt?: string;
     wide?: boolean;
+    favorite?: boolean;
   }
 
-  let { tag, title, content, tilt = "0deg", wide = false }: Props = $props();
+  let {
+    tag,
+    title,
+    content,
+    tilt = "0deg",
+    wide = false,
+    favorite = false,
+  }: Props = $props();
 
   const html = $derived(renderMarkdown(content));
 </script>
 
-<article class="example-card" class:wide style="--tilt: {tilt};">
-  <span class="example-pin">📌</span>
+<article class="example-card" class:wide class:favorite style="--tilt: {tilt};">
+  {#if favorite}<span class="example-pin">📌</span>{/if}
   {#if tag} <span class="example-tag">{tag}</span>{/if}
   <h3 class="example-title">{title}</h3>
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- content is hardcoded markdown authored in this repo, not user input -->
@@ -43,6 +51,11 @@
 
   .example-card.wide {
     grid-column: span 2;
+  }
+
+  .example-card.favorite {
+    background: var(--color-accent-low);
+    border-color: var(--color-accent);
   }
 
   .example-pin {
