@@ -6,6 +6,7 @@
   import ScaleFilter from "$lib/components/ScaleFilter.svelte";
   import GuessScale from "$lib/components/GuessScale.svelte";
   import CountryTray from "$lib/components/CountryTray.svelte";
+  import ExampleCard from "$lib/components/ExampleCard.svelte";
   import { CULTURE_COUNTRIES, getCultureCountry } from "$lib/data/culture-countries";
   import { dragState, startDrag } from "$lib/drag.svelte";
 
@@ -412,9 +413,9 @@
   </header>
 
   <div class="card-grid">
-    <section class="card">
+    <section class="card card-about">
       <h2 class="card-title">About</h2>
-      <ul>
+      <ul class="plain-list">
         <li>First published in 2014 by PublicAffairs.</li>
         <li>Based on the author's research at INSEAD, known as the “Business School for the World,” located in Paris.</li>
         <li>Original title: “The Culture Map: Breaking Through the Invisible Boundaries of Global Business.”</li>
@@ -422,9 +423,9 @@
       </ul>
     </section>
 
-    <section class="card">
+    <section class="card card-author">
       <h2 class="card-title">About the author</h2>
-      <ul>
+      <ul class="plain-list">
           <li>Meyer was born in 1971 and raised in Minnesota.</li>
           <li>She has lived and worked in Africa, Europe, and the United States.</li>
           <li>An American living in Paris, Meyer began her career teaching English in Botswana as a Peace Corps volunteer, then later worked with Asian immigrants in the United States.</li>
@@ -432,7 +433,7 @@
       </ul>
     </section>
 
-    <section class="card">
+    <section class="card card-ideas">
       <h2 class="card-title">Main ideas</h2>
       <ul class="idea-list">
         <li><b>Fish and water</b>. The way we are conditioned to see the world in our own culture seems so completely obvious and commonplace that it is difficult to imagine that another culture might do things differently</li>
@@ -440,19 +441,6 @@
         <li><b>Cultural relativity.</b>When examining how people from different cultures relate to one another, what matters is not the absolute position of either culture on the scale but rather the relative position of the two cultures</li>
 
       </ul>
-    </section>
-
-    <section class="card card-quote">
-      <blockquote>
-        “Placeholder quote pulled from the book — something memorable or
-        thought-provoking goes here.”
-      </blockquote>
-    </section>
-    <section class="card card-quote">
-      <blockquote>
-        “Placeholder quote pulled from the book — something memorable or
-        thought-provoking goes here.”
-      </blockquote>
     </section>
   </div>
 
@@ -517,9 +505,303 @@
     {/each}
   </section>
 
-  <div class="prose">
-    <p>Notes coming soon.</p>
-  </div>
+  <section class="examples-section">
+    <div class="scales-header">
+      <h2 class="section-title">Examples and quotes</h2>
+    </div>
+
+    <div class="examples-grid">
+      <ExampleCard
+        tag="Example"
+        title="Deaf Dulac"
+        tilt="-2.5deg"
+        content="An American supervisor complains that his French subordinate lacks the sophistication to grasp his meaning, while the French manager seems happily oblivious to the message her boss is trying to convey."
+      />
+
+      <ExampleCard
+        tag="Recommendation"
+        title=""
+        tilt="0.8deg"
+        content="**Most misunderstandings can be avoided by defining a clear team culture that everyone agrees to apply**"
+      />
+
+      <ExampleCard
+        tag="Evaluating"
+        title="French"
+        tilt="1.5deg"
+        content='_In a French setting, positive feedback is often given implicitly, while negative feedback is given more directly._ Same with Russians. '
+      />
+
+      <ExampleCard
+        tag="Quote"
+        title="Cultural & Individual"
+        tilt="-1.5deg"
+        content="«...you need to have an appreciation for cultural differencies as well as respect for individual differences»"
+      />
+
+      <ExampleCard
+        tag="Quote"
+        title="Relativity"
+        tilt="3deg"
+        content="«...when examining how people from different cultures relate to one another, what matters is not the absolute position of either culture on the scale but rather the relative position of the two cultures»"
+      />
+
+      <ExampleCard
+        tag=""
+        title="Fish & Water"
+        tilt="-1.5deg"
+        content="Two young fish encounter an older fish swimming the opposite way. He nods at them and says, «Morning, boys, how's the water?». On of the young fish asks after that another: «What the hell is water?»"
+      />
+
+      <ExampleCard
+        tag="Recommendation"
+        title=""
+        tilt="2.5deg"
+        content="When interacting with someone from another culture, try to watch more, listen more, and speak less"
+      />
+
+      <ExampleCard
+        tag="Communicating"
+        title="kuuki yomenai"
+        tilt="2.5deg"
+        content="kuuki yomenai means 'one who cannot read the air' — in other words, a person sorely lacking the ability to read between the lines. In Japan if you can't read the air, you are not a good listener"
+      />
+
+      <ExampleCard
+        tag="Communicating"
+        title=""
+        tilt="-3deg"
+        content="When person from high-context culture 'reads the air' during discussions, are they picking up messages that people had not intended to pass?"
+      />
+      <ExampleCard
+        tag="Communicating"
+        title="American rule"
+        tilt="3deg"
+        content="«Tell them what you are going to tell them, then tell them, then tell them what you've told them»"
+      />
+      <ExampleCard
+        tag="Communicating"
+        title="Languages"
+        tilt="-1deg"
+        content="Languages reflect the communication styles of the cultures. In some there are more words with semantic ambiguities and you have to hear the whole sentence to understand in the context and the meaning"
+      />
+      <ExampleCard
+        tag="Communicating"
+        title="second degree"
+        tilt="1.5deg"
+        content="Person can say one thing explicitly — first-degree message — but the statement may have an unspoken subtext which is the second-degree meaning. With shared context you can understand the real intended message"
+      />
+      <ExampleCard
+        tag="Communicating"
+        title="Why America is so low-context"
+        tilt="-3deg"
+        content="few hundred years of shared history, immigrants from various countries, all with different histories, different languages, and different background — little shared context. So if you want to pass a message, you had to make it as explicit and clear as possible"
+      />
+      <ExampleCard
+        tag="Communicating"
+        title="Edward Hall"
+        tilt="-3deg"
+        content="The american anthropologist, who originally developed the concept of low- and high-context communication in 1930s. Often used analogy of marriage: married for a long time and newlyweds"
+      />
+      <ExampleCard
+        tag="Communicating"
+        title=""
+        tilt="-1deg"
+        content="**If you are from a low-context culture**, you may perceive a high-context communicator as secretive, lacking transparency, or unable to communicate effectively"
+      />
+      <ExampleCard
+        tag="Communicating"
+        title=""
+        tilt="-4deg"
+        content="**If you are from a high-context culture**, you might perceive a low-context communicator as inappropriately stating the obvious, or even as condescending and patronizing"
+      />
+      <ExampleCard
+        tag="Recommendation"
+        title=""
+        tilt="1.25deg"
+        content="When you find yourself stymied or frustrated by misunderstanding, self-deprecation, laughing at yourself, and using positive worlds to describe the other culture are always good options"
+      />
+      <ExampleCard
+        tag="Example"
+        title="Writing"
+        tilt="-2.25deg"
+        content="Indonesian manager vs German boss. In Indonesian culture, if you have a strong relationship and come to a spoken agreement, that is enough. And recapping email is a clear sign that your partner doesn't trust you"
+      />
+      <ExampleCard
+        tag="Example"
+        title="Dutch feedback"
+        tilt="1.25deg"
+        content="«You're inflexible and can be socially ill-at-ease. That makes it difficult for you to communicate with your team»"
+      />
+      <ExampleCard
+        tag=""
+        title="Upgraders and downgraders"
+        tilt="-2deg"
+        content="Upgraders: absolutely, totally, strongly. Downgraders: kind of, sort of, a little, a bit, maybe, slightly + deliberate understatement"
+      />
+      <ExampleCard
+        tag="Recommendation"
+        title=""
+        tilt="3.15deg"
+        content="One rule for working with cultures that are more direct than yours on the Evaluating scale: **Don't try to do it like them**"
+      />
+      <ExampleCard
+        wide
+        tag="Evaluating"
+        title="Deliberate understatement"
+        tilt="1.65deg"
+        content="Take the announcement made by British Airways pilot Eric Moody in 1983, after flying through a cloud of volcanic ash over Indonesia: 'Good evening again, ladies and gentlemen. This is Captain Eric Moody here. We have a small problem in that all four engines have failed. We are doing our utmost to get them going and I trust you're not in too much distress, and would the chief steward please com to the flight deck?'"
+      />
+      <ExampleCard
+        tag="Example"
+        title="Dutchman"
+        tilt="-2.5deg"
+        content="«When my American colleagues begin a communication with all of their 'excellents' and 'greats', it feels so exaggerated that I find it demeaning. We are adults, here to do our jobs and to do them well. We don't need our colleagues to be cheerleaders»"
+      />
+      <ExampleCard
+        tag="Example"
+        title="Great, good, okay"
+        tilt="-4.5deg"
+        content="For a Dutchman, the word 'excellent' is saved for a rare occasion and 'okay' is... well, neutral. But with the Americans, the grid is different. 'Excellent' is used all the time. 'Okay' seems to mean 'not okay'. 'Good' is only a mild compliment"
+      />
+      <ExampleCard
+        tag="Recommendation"
+        title="Providing evaluation"
+        tilt="-2.5deg"
+        content="Be explicit and low-context with both positive and negative feedback. But don't launch into the negatives until you have also explicitly stated something that you appreciate about the person or the situation"
+      />
+      <ExampleCard
+        tag="Recommendation"
+        title="Food + blur an unpleasant message"
+        tilt="1.5deg"
+        content="If you need to give negative feedback to a person from high-context and indirect negative feedback culture: give feedback gradually, use food and drink to blur the message, **say the good and leave out the bad**"
+      />
+      <ExampleCard
+        tag="Example"
+        wide
+        title="leave out the bad"
+        tilt="-0.5deg"
+        content="«A while back, one of my Indonesian colleagues sent me a set of four documents to read and review. The last two documents he must have finished in a hurry ... they were very sloppy in compariosn to the first two. ... I told him that the first two papers where excellent. I focused on these documents only, outlining why they were so effective. I didn't need to mention the sloppy documents, which would have been uncomfortable for both of us»"
+      />
+      <ExampleCard
+          wide
+        tag="Persuading"
+        title=""
+        tilt="1.5deg"
+        content="«One of the most common frustrations among **French employees with American bosses** is that the American tells them what to do without explaining why they need to do it. From the French perspective, this can feel demotivating, even disrespectful. By contrast, American bosses may feel that French workers are uncooperative because, instead of acting quickly, they always ask 'Why?' and are not ready to act until they have received a suitable response»"
+      />
+      <ExampleCard
+        tag="Recommendation"
+        title=""
+        tilt="0deg"
+        content="Presenting to Londoners or New Yorkers? Get to the point and stick to it. Presenting to French, Spaniards, or Germans? Spend more time setting the parameters and explaining the background"
+        />
+      <ExampleCard
+        tag="Example"
+        title="Asian holistic approach"
+        tilt="-2.5deg"
+        content="Making photo of a person — a lot of background. Noticing details and whole picture. Think from macro to micro: address, date"
+      />
+      <ExampleCard
+        tag="Example"
+        title="Danes and egalitarian principles"
+        tilt="0.8deg"
+        content="Do not think you are better than others. Do not think you are smarter than others. Do not think you are more important than others. Do not think you are someone special"
+      />
+
+      <ExampleCard
+        tag="Decisioning"
+        title=""
+        tilt="2.8deg"
+        content="Being successful as the pioneers spread west across the American plains depend on arriving first and working hard, regarding mistakes as an inevitable and ultimately insignificant side effect of speed. As a corollary, Americans developed a dislike for too much discussion, which would just slow them down, preferring to make decisions quickly, often based on scanty information, whether by the leader or by voting."
+      />
+
+      <ExampleCard
+        tag="Example"
+        title="Australian boss in China"
+        tilt="-2.8deg"
+        content="«Well, I love my bike, but I was in China to get my team motivated and on track. ... I gave up the bike and started taking public transportation, just like every other Chinese boss»"
+      />
+
+      <ExampleCard
+        tag="Recommendation"
+        title="How to get feedback if you are a boss"
+        tilt="0.5deg"
+        content="Removing the boss from the meeting (brainstorm group), give questions that you want to ask ahead of meeting, invite people to speak up"
+      />
+
+      <ExampleCard
+        tag="Example"
+        title=""
+        tilt="3.2deg"
+        content="«And if you are German, and you dare to challenge your American boss, as is so common in Germany, don't be surprised if you find yourself one step closer to unemployment. I know it's true — it happened to me!»"
+      />
+      <ExampleCard
+        tag=""
+        title="ringisho"
+        tilt="-1deg"
+        content="The japanese ring system: hierarchical but ultra-consensual"
+      />
+
+      <ExampleCard
+        tag="Trusting"
+        title=""
+        tilt="2.3deg"
+        content="**cognitive trust and affective trust**"
+      />
+
+      <ExampleCard
+        tag="Trusting"
+        title=""
+        tilt="-1.3deg"
+        content="The United States has a long tradition of separating the practical and emotional. Mixing the two is perceived as unprofessional and risks conflict of interest"
+      />
+
+      <ExampleCard
+        tag="Trusting"
+        title=""
+        tilt="2.3deg"
+        content="icebreaker exercises in relationship-based societies are rare. Relationships are built up slowly"
+      />
+
+      <ExampleCard
+        tag="Recommendation"
+        title=""
+        tilt="-0.3deg"
+        content="when you work internationally, no matter who you are working with, investing more time in building affective trust is a good idea"
+      />
+
+      <ExampleCard
+        tag="Trusting"
+        title=""
+        tilt="0deg"
+        content="why invest in relationships? because in many cultures, the relationship is your contract (instead of ineffective or complex legal system)"
+      />
+
+      <ExampleCard
+        tag="Disagreement"
+        title="China"
+        tilt="1.7deg"
+        content="In China, protecting another person's face is more important than stating what you believe is correct"
+      />
+      <ExampleCard
+        tag="Disagreement"
+        title="French"
+        tilt="-1.7deg"
+        content="We make our points passionately. We like to disagree openly. We like to say things that shock. With confrontation, you reach excellence, you have more creativity, and you eliminate risk"
+      />
+
+      <ExampleCard
+        tag="Disagreement"
+        title=""
+        tilt="2.3deg"
+        content="If someone in my culture disagrees strongly with my idea, does that suggest they are disapproving of me or just of the idea?
+        In more confrontational cultures, it seems quite natural to attack someone's opinion without attacking that person."
+      />
+    </div>
+  </section>
+
+
 
   {#if dragState.current}
     {@const ghostInfo = getCultureCountry(dragState.current.code)}
@@ -587,22 +869,47 @@
     color: var(--color-text-muted);
   }
 
-  /* ─── Masonry card grid ─── */
+  /* ─── Card grid ─── */
   .card-grid {
-    column-count: 3;
-    column-gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    grid-template-areas:
+      "about author"
+      "ideas ideas";
+    align-items: stretch;
+    gap: 1.5rem;
     margin-bottom: var(--spacing-section);
+  }
+
+  .card-about {
+    grid-area: about;
+  }
+
+  .card-author {
+    grid-area: author;
+  }
+
+  .card-ideas {
+    grid-area: ideas;
+    justify-self: start;
+    width: 90%;
   }
 
   @media (max-width: 768px) {
     .card-grid {
-      column-count: 1;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "about"
+        "author"
+        "ideas";
+    }
+
+    .card-ideas {
+      width: 100%;
     }
   }
 
   .card {
-    break-inside: avoid;
-    margin-bottom: 1.5rem;
     padding: 1.75rem;
     background: var(--color-surface-2);
     border: 1px solid var(--color-border);
@@ -618,9 +925,16 @@
     color: var(--color-text);
   }
 
-  .card p {
+  .plain-list {
+    padding-left: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .plain-list li {
     color: var(--color-text-muted);
-    line-height: 1.7;
+    line-height: 1.6;
     font-size: 0.95rem;
   }
 
@@ -648,19 +962,6 @@
     height: 5px;
     border-radius: 50%;
     background: var(--color-accent);
-  }
-
-  .card-quote {
-    background: var(--color-accent-low);
-    border-color: var(--color-accent-low);
-  }
-
-  .card-quote blockquote {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 1.15rem;
-    line-height: 1.5;
-    color: var(--color-accent-high);
   }
 
   /* ─── Scales section ─── */
@@ -698,6 +999,17 @@
   .mode-toggle:hover {
     background: var(--color-accent);
     color: #fff;
+  }
+
+  /* ─── Examples section ─── */
+  .examples-section {
+    margin-bottom: var(--spacing-section);
+  }
+
+  .examples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2.5rem 1.75rem;
   }
 
   /* ─── Drag ghost ─── */
