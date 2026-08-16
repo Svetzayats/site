@@ -7,6 +7,7 @@ declare global {
 		QUOTES_API_TOKEN?: string;
 		ADMIN_PASSWORD?: string;
 		BINGO_JM_PASSWORD?: string;
+		CM_REVIEWER_PASSWORD?: string;
 		GITHUB_TOKEN?: string;
 	}
 	namespace App {
