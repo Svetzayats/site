@@ -7,6 +7,8 @@ export interface AnswerInput {
 	rating: Rating;
 	level: Level;
 	notes: string;
+	accomplishments: string;
+	opportunities: string;
 }
 
 export interface Answer {
@@ -14,6 +16,8 @@ export interface Answer {
 	rating: Rating;
 	level: Level | null;
 	notes: string | null;
+	accomplishments: string | null;
+	opportunities: string | null;
 }
 
 export interface SelfAssessmentSummary {
@@ -39,6 +43,8 @@ interface AnswerRow {
 	rating: Rating;
 	level: Level | null;
 	notes: string | null;
+	accomplishments: string | null;
+	opportunities: string | null;
 }
 
 async function getAnswers(
@@ -48,7 +54,9 @@ async function getAnswers(
 	parentId: string,
 ): Promise<Answer[]> {
 	const result = await db
-		.prepare(`SELECT competency_id, rating, level, notes FROM ${table} WHERE ${parentColumn} = ?`)
+		.prepare(
+			`SELECT competency_id, rating, level, notes, accomplishments, opportunities FROM ${table} WHERE ${parentColumn} = ?`,
+		)
 		.bind(parentId)
 		.all<AnswerRow>();
 	return result.results.map((row) => ({
@@ -56,6 +64,8 @@ async function getAnswers(
 		rating: row.rating,
 		level: row.level,
 		notes: row.notes,
+		accomplishments: row.accomplishments,
+		opportunities: row.opportunities,
 	}));
 }
 
@@ -69,9 +79,17 @@ function insertAnswerStatements(
 	return answers.map((answer) =>
 		db
 			.prepare(
-				`INSERT INTO ${table} (${parentColumn}, competency_id, rating, level, notes) VALUES (?, ?, ?, ?, ?)`,
+				`INSERT INTO ${table} (${parentColumn}, competency_id, rating, level, notes, accomplishments, opportunities) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 			)
-			.bind(parentId, answer.competencyId, answer.rating, answer.level, answer.notes || null),
+			.bind(
+				parentId,
+				answer.competencyId,
+				answer.rating,
+				answer.level,
+				answer.notes || null,
+				answer.accomplishments || null,
+				answer.opportunities || null,
+			),
 	);
 }
 

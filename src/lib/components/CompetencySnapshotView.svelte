@@ -76,8 +76,14 @@
             {answer.level ?? RATING_LABEL[answer.rating] ?? answer.rating}
           </span>
         </div>
+        {#if answer.accomplishments}
+          <p class="notes"><strong>Accomplishments:</strong> {answer.accomplishments}</p>
+        {/if}
+        {#if answer.opportunities}
+          <p class="notes"><strong>Opportunities:</strong> {answer.opportunities}</p>
+        {/if}
         {#if answer.notes}
-          <p class="notes">{answer.notes}</p>
+          <p class="notes"><strong>Notes:</strong> {answer.notes}</p>
         {/if}
       </li>
     {/each}

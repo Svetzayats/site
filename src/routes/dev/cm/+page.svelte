@@ -6,7 +6,8 @@
   import CompetencyTable from '$lib/components/CompetencyTable.svelte';
   import CompetencyAssessmentForm from '$lib/components/CompetencyAssessmentForm.svelte';
   import CompetencySnapshotView from '$lib/components/CompetencySnapshotView.svelte';
-  import { COMPETENCIES, LEVELS, LEVEL_META, type Level } from '$lib/data/competency-matrix';
+  import CompetencyRadarChart from '$lib/components/CompetencyRadarChart.svelte';
+  import { COMPETENCIES, LEVELS, LEVEL_META, MAX_LEVEL_SCORE, type Level } from '$lib/data/competency-matrix';
   import type { PageData, ActionData } from './$types';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -135,6 +136,28 @@
           submitLabel="Save self-assessment"
         />
       {/key}
+
+      {#if data.radar}
+        <div class="radar-section">
+          <h3>Radar Results</h3>
+          <p class="hint-text">
+            Average score per theme (E1=0 … E6={MAX_LEVEL_SCORE}) for the latest self-assessment{data
+              .radar.reviewer
+              ? ' vs. reviewer average'
+              : ''}.
+          </p>
+          <CompetencyRadarChart
+            themes={data.radar.themes}
+            maxScore={MAX_LEVEL_SCORE}
+            series={[
+              { label: 'Self', color: 'var(--color-accent)', valuesByTheme: data.radar.self },
+              ...(data.radar.reviewer
+                ? [{ label: 'Reviewer avg', color: '#10b981', valuesByTheme: data.radar.reviewer }]
+                : []),
+            ]}
+          />
+        </div>
+      {/if}
 
       {#if data.selfAssessments.length > 0}
         <div class="history">
@@ -354,6 +377,15 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  .radar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
   }
 
   .reviewer-identity {

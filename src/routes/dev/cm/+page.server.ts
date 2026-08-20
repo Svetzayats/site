@@ -1,7 +1,14 @@
 import { fail } from '@sveltejs/kit';
 import type { Cookies } from '@sveltejs/kit';
 import { isAdminAuthenticated } from '$lib/server/auth';
-import { COMPETENCIES, LEVELS, compareLevels, type Level } from '$lib/data/competency-matrix';
+import {
+	COMPETENCIES,
+	LEVELS,
+	RADAR_THEMES,
+	compareLevels,
+	levelScore,
+	type Level,
+} from '$lib/data/competency-matrix';
 import {
 	createSelfAssessment,
 	createReview,
@@ -9,6 +16,7 @@ import {
 	getAllReviews,
 	getLatestSelfAssessment,
 	getReviewsByReviewer,
+	type Answer,
 	type AnswerInput,
 } from '$lib/server/competency-matrix';
 import type { Actions, PageServerLoad } from './$types';
@@ -30,15 +38,43 @@ function parseAnswers(formData: FormData, targetLevel: Level): AnswerInput[] {
 		const level = formData.get(`level_${competency.id}`) as string | null;
 		if (isLevel(level)) {
 			const notes = (formData.get(`notes_${competency.id}`) as string | null) ?? '';
+			const accomplishments =
+				(formData.get(`accomplishments_${competency.id}`) as string | null) ?? '';
+			const opportunities =
+				(formData.get(`opportunities_${competency.id}`) as string | null) ?? '';
 			answers.push({
 				competencyId: competency.id,
 				level,
 				rating: compareLevels(level, targetLevel),
 				notes: notes.trim(),
+				accomplishments: accomplishments.trim(),
+				opportunities: opportunities.trim(),
 			});
 		}
 	}
 	return answers;
+}
+
+const THEME_BY_COMPETENCY_ID = new Map(COMPETENCIES.map((c) => [c.id, c.theme]));
+
+function themeAverageScores(answers: Answer[]): Record<string, number | null> {
+	const scoresByTheme = new Map<string, number[]>();
+	for (const theme of RADAR_THEMES) scoresByTheme.set(theme, []);
+
+	for (const answer of answers) {
+		if (!answer.level) continue;
+		const theme = THEME_BY_COMPETENCY_ID.get(answer.competencyId);
+		if (!theme) continue;
+		const scores = scoresByTheme.get(theme);
+		if (!scores) continue;
+		scores.push(levelScore(answer.level));
+	}
+
+	const result: Record<string, number | null> = {};
+	for (const [theme, scores] of scoresByTheme) {
+		result[theme] = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+	}
+	return result;
 }
 
 export const load: PageServerLoad = async ({ cookies, url, platform }) => {
@@ -52,6 +88,21 @@ export const load: PageServerLoad = async ({ cookies, url, platform }) => {
 	const latestSelfAssessment = reviewer && db ? await getLatestSelfAssessment(db) : null;
 	const myReviews = reviewer && db && reviewerName ? await getReviewsByReviewer(db, reviewerName) : [];
 
+	const latestForRadar = selfAssessments[0] ?? null;
+	const matchingReviews = latestForRadar
+		? allReviews.filter((r) => r.selfAssessmentId === latestForRadar.id)
+		: [];
+	const radar = latestForRadar
+		? {
+				themes: RADAR_THEMES,
+				self: themeAverageScores(latestForRadar.answers),
+				reviewer:
+					matchingReviews.length > 0
+						? themeAverageScores(matchingReviews.flatMap((r) => r.answers))
+						: null,
+			}
+		: null;
+
 	return {
 		admin,
 		reviewer,
@@ -60,6 +111,7 @@ export const load: PageServerLoad = async ({ cookies, url, platform }) => {
 		allReviews,
 		latestSelfAssessment,
 		myReviews,
+		radar,
 	};
 };
 

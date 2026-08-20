@@ -7,6 +7,13 @@ export function compareLevels(skillLevel: Level, targetLevel: Level): 'below' | 
 	return s < t ? 'below' : s > t ? 'above' : 'at';
 }
 
+/** Numeric score for a level, matching the xlsx's Score Leveling table (E1=0 … E6=5). */
+export function levelScore(level: Level): number {
+	return LEVELS.indexOf(level);
+}
+
+export const MAX_LEVEL_SCORE = LEVELS.length - 1;
+
 export interface LevelMeta {
 	title: string;
 	focus: string;
@@ -478,3 +485,8 @@ NOTE: The work of P6+ individual contributors differs qualitatively from that of
 		},
 	},
 ];
+
+/** Themes shown on the Radar Results chart, in xlsx order. "Scope & Experience" is excluded, matching the source xlsx. */
+export const RADAR_THEMES: string[] = Array.from(
+	new Set(COMPETENCIES.filter((c) => c.theme !== 'Scope & Experience').map((c) => c.theme)),
+);

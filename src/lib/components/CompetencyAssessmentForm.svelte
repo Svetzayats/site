@@ -111,11 +111,31 @@
             </select>
           </div>
 
-          <textarea
-            name="notes_{row.id}"
-            rows="2"
-            placeholder="What evidence supports this rating? What would it take to reach the next level?"
-          ></textarea>
+          <div class="field">
+            <label class="field-label" for="accomplishments_{row.id}">Accomplishments</label>
+            <textarea
+              id="accomplishments_{row.id}"
+              name="accomplishments_{row.id}"
+              rows="2"
+              placeholder="Concrete evidence/examples backing up the level you picked."
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="opportunities_{row.id}">Opportunities</label>
+            <textarea
+              id="opportunities_{row.id}"
+              name="opportunities_{row.id}"
+              rows="2"
+              placeholder="What's needed to move up on this specific skill."
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="notes_{row.id}">Notes</label>
+            <textarea id="notes_{row.id}" name="notes_{row.id}" rows="2" placeholder="Anything else worth noting."
+            ></textarea>
+          </div>
 
           {#if referenceAnswers}
             {@const ref = referenceAnswers.get(row.id)}
@@ -126,8 +146,14 @@
                   <span class="reference-rating rating-{ref.rating}">
                     {ref.level ?? REFERENCE_RATING_LABEL[ref.rating] ?? ref.rating}
                   </span>
+                  {#if ref.accomplishments}
+                    <p class="reference-notes"><strong>Accomplishments:</strong> {ref.accomplishments}</p>
+                  {/if}
+                  {#if ref.opportunities}
+                    <p class="reference-notes"><strong>Opportunities:</strong> {ref.opportunities}</p>
+                  {/if}
                   {#if ref.notes}
-                    <p class="reference-notes">{ref.notes}</p>
+                    <p class="reference-notes"><strong>Notes:</strong> {ref.notes}</p>
                   {/if}
                 </div>
               </details>
@@ -281,6 +307,17 @@
     font-size: 0.9rem;
     background: var(--color-bg);
     color: var(--color-text);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .field-label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
   }
 
   textarea {
