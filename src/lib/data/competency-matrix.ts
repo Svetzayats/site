@@ -1,6 +1,12 @@
 export const LEVELS = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6'] as const;
 export type Level = (typeof LEVELS)[number];
 
+export function compareLevels(skillLevel: Level, targetLevel: Level): 'below' | 'at' | 'above' {
+	const s = LEVELS.indexOf(skillLevel);
+	const t = LEVELS.indexOf(targetLevel);
+	return s < t ? 'below' : s > t ? 'above' : 'at';
+}
+
 export interface LevelMeta {
 	title: string;
 	focus: string;

@@ -1,7 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { Cookies } from '@sveltejs/kit';
 import { isAdminAuthenticated } from '$lib/server/auth';
-import { COMPETENCIES, LEVELS, type Level } from '$lib/data/competency-matrix';
+import { COMPETENCIES, LEVELS, compareLevels, type Level } from '$lib/data/competency-matrix';
 import {
 	createSelfAssessment,
 	createReview,
@@ -10,7 +10,6 @@ import {
 	getLatestSelfAssessment,
 	getReviewsByReviewer,
 	type AnswerInput,
-	type Rating,
 } from '$lib/server/competency-matrix';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -25,13 +24,18 @@ function isLevel(value: string | null): value is Level {
 	return !!value && (LEVELS as readonly string[]).includes(value);
 }
 
-function parseAnswers(formData: FormData): AnswerInput[] {
+function parseAnswers(formData: FormData, targetLevel: Level): AnswerInput[] {
 	const answers: AnswerInput[] = [];
 	for (const competency of COMPETENCIES) {
-		const rating = formData.get(`rating_${competency.id}`);
-		if (rating === 'below' || rating === 'at' || rating === 'above') {
+		const level = formData.get(`level_${competency.id}`) as string | null;
+		if (isLevel(level)) {
 			const notes = (formData.get(`notes_${competency.id}`) as string | null) ?? '';
-			answers.push({ competencyId: competency.id, rating: rating as Rating, notes: notes.trim() });
+			answers.push({
+				competencyId: competency.id,
+				level,
+				rating: compareLevels(level, targetLevel),
+				notes: notes.trim(),
+			});
 		}
 	}
 	return answers;
@@ -107,7 +111,7 @@ export const actions: Actions = {
 			return fail(400, { selfError: 'Invalid level' });
 		}
 
-		const answers = parseAnswers(formData);
+		const answers = parseAnswers(formData, level);
 		await createSelfAssessment(db, level, answers);
 	},
 
@@ -129,7 +133,7 @@ export const actions: Actions = {
 			return fail(400, { reviewError: 'There is no self-assessment to review yet' });
 		}
 
-		const answers = parseAnswers(formData);
+		const answers = parseAnswers(formData, latest.level as Level);
 		await createReview(db, reviewerName, latest.id, answers);
 	},
 };

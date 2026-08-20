@@ -1,14 +1,18 @@
+import type { Level } from '$lib/data/competency-matrix';
+
 export type Rating = 'below' | 'at' | 'above';
 
 export interface AnswerInput {
 	competencyId: string;
 	rating: Rating;
+	level: Level;
 	notes: string;
 }
 
 export interface Answer {
 	competencyId: string;
 	rating: Rating;
+	level: Level | null;
 	notes: string | null;
 }
 
@@ -33,6 +37,7 @@ export interface Review {
 interface AnswerRow {
 	competency_id: string;
 	rating: Rating;
+	level: Level | null;
 	notes: string | null;
 }
 
@@ -43,12 +48,13 @@ async function getAnswers(
 	parentId: string,
 ): Promise<Answer[]> {
 	const result = await db
-		.prepare(`SELECT competency_id, rating, notes FROM ${table} WHERE ${parentColumn} = ?`)
+		.prepare(`SELECT competency_id, rating, level, notes FROM ${table} WHERE ${parentColumn} = ?`)
 		.bind(parentId)
 		.all<AnswerRow>();
 	return result.results.map((row) => ({
 		competencyId: row.competency_id,
 		rating: row.rating,
+		level: row.level,
 		notes: row.notes,
 	}));
 }
@@ -63,9 +69,9 @@ function insertAnswerStatements(
 	return answers.map((answer) =>
 		db
 			.prepare(
-				`INSERT INTO ${table} (${parentColumn}, competency_id, rating, notes) VALUES (?, ?, ?, ?)`,
+				`INSERT INTO ${table} (${parentColumn}, competency_id, rating, level, notes) VALUES (?, ?, ?, ?, ?)`,
 			)
-			.bind(parentId, answer.competencyId, answer.rating, answer.notes || null),
+			.bind(parentId, answer.competencyId, answer.rating, answer.level, answer.notes || null),
 	);
 }
 

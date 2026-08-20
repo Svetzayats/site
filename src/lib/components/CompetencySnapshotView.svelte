@@ -18,10 +18,53 @@
     at: 'At level',
     above: 'Exceeding level',
   };
+
+  function skillLabel(competencyId: string): string {
+    const row = byId.get(competencyId);
+    return row ? (row.skill ?? row.area) : competencyId;
+  }
+
+  const grouped = $derived.by(() => {
+    const workOn: Answer[] = [];
+    const goingWell: Answer[] = [];
+    for (const answer of answers) {
+      (answer.rating === 'below' ? workOn : goingWell).push(answer);
+    }
+    return { workOn, goingWell };
+  });
 </script>
 
 <details class="snapshot" {open}>
   <summary>{title}</summary>
+
+  {#if answers.length > 0}
+    <div class="summary">
+      <div class="summary-col summary-work-on">
+        <h4>Areas to work on</h4>
+        {#if grouped.workOn.length === 0}
+          <p class="summary-empty">Nothing below level.</p>
+        {:else}
+          <ul>
+            {#each grouped.workOn as answer (answer.competencyId)}
+              <li>{skillLabel(answer.competencyId)}</li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
+      <div class="summary-col summary-going-well">
+        <h4>Going well</h4>
+        {#if grouped.goingWell.length === 0}
+          <p class="summary-empty">Nothing at or above level yet.</p>
+        {:else}
+          <ul>
+            {#each grouped.goingWell as answer (answer.competencyId)}
+              <li>{skillLabel(answer.competencyId)}</li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
+    </div>
+  {/if}
 
   <ul class="answers">
     {#each answers as answer (answer.competencyId)}
@@ -30,7 +73,7 @@
         <div class="answer-head">
           <span class="skill-name">{row ? (row.skill ?? row.area) : answer.competencyId}</span>
           <span class="rating-badge rating-{answer.rating}">
-            {RATING_LABEL[answer.rating] ?? answer.rating}
+            {answer.level ?? RATING_LABEL[answer.rating] ?? answer.rating}
           </span>
         </div>
         {#if answer.notes}
@@ -52,6 +95,49 @@
     cursor: pointer;
     font-weight: 600;
     color: var(--color-accent-high);
+  }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+  }
+
+  .summary-col {
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.75rem;
+  }
+
+  .summary-work-on {
+    background: color-mix(in srgb, #dc2626 8%, var(--color-bg));
+  }
+
+  .summary-going-well {
+    background: color-mix(in srgb, #10b981 8%, var(--color-bg));
+  }
+
+  .summary-col h4 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-soft);
+    margin-bottom: 0.4rem;
+  }
+
+  .summary-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--color-text);
+  }
+
+  .summary-empty {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
   }
 
   .answers {

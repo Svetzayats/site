@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { diffWords } from '$lib/diff-words';
-  import type { CompetencyRow, Level } from '$lib/data/competency-matrix';
+  import { LEVELS, LEVEL_META, type CompetencyRow, type Level } from '$lib/data/competency-matrix';
   import type { Answer } from '$lib/server/competency-matrix';
 
   interface Props {
@@ -49,12 +49,6 @@
     }
     return groups;
   });
-
-  const RATINGS: { value: 'below' | 'at' | 'above'; label: string }[] = [
-    { value: 'below', label: 'Not yet at this level' },
-    { value: 'at', label: 'At this level' },
-    { value: 'above', label: 'Exceeding this level' },
-  ];
 </script>
 
 <form
@@ -107,18 +101,14 @@
             {/if}
           </div>
 
-          <div class="rating-group" role="radiogroup" aria-label="Rating for {row.skill ?? row.area}">
-            {#each RATINGS as rating (rating.value)}
-              <label class="rating-option">
-                <input
-                  type="radio"
-                  name="rating_{row.id}"
-                  value={rating.value}
-                  required
-                />
-                {rating.label}
-              </label>
-            {/each}
+          <div class="level-select-group">
+            <label class="level-select-label" for="level_{row.id}">Level</label>
+            <select id="level_{row.id}" name="level_{row.id}" required>
+              <option value="" disabled selected>Select level</option>
+              {#each LEVELS as lvl (lvl)}
+                <option value={lvl}>{lvl} — {LEVEL_META[lvl].title}</option>
+              {/each}
+            </select>
           </div>
 
           <textarea
@@ -134,7 +124,7 @@
                 <summary class="reference-label">{referenceLabel}</summary>
                 <div class="reference-body">
                   <span class="reference-rating rating-{ref.rating}">
-                    {REFERENCE_RATING_LABEL[ref.rating] ?? ref.rating}
+                    {ref.level ?? REFERENCE_RATING_LABEL[ref.rating] ?? ref.rating}
                   </span>
                   {#if ref.notes}
                     <p class="reference-notes">{ref.notes}</p>
@@ -272,19 +262,25 @@
     white-space: pre-wrap;
   }
 
-  .rating-group {
+  .level-select-group {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 1.25rem;
+    align-items: center;
+    gap: 0.6rem;
   }
 
-  .rating-option {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
+  .level-select-label {
     font-size: 0.875rem;
     color: var(--color-text-muted);
-    cursor: pointer;
+  }
+
+  .level-select-group select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    background: var(--color-bg);
+    color: var(--color-text);
   }
 
   textarea {
