@@ -7,10 +7,16 @@
   import CompetencyAssessmentForm from '$lib/components/CompetencyAssessmentForm.svelte';
   import CompetencySnapshotView from '$lib/components/CompetencySnapshotView.svelte';
   import CompetencyRadarChart from '$lib/components/CompetencyRadarChart.svelte';
+  import GoalCard from '$lib/components/GoalCard.svelte';
+  import GoalForm from '$lib/components/GoalForm.svelte';
   import { COMPETENCIES, LEVELS, LEVEL_META, MAX_LEVEL_SCORE, type Level } from '$lib/data/competency-matrix';
+  import type { Goal } from '$lib/server/goals';
   import type { PageData, ActionData } from './$types';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
+
+  let editingGoal = $state<Goal | null>(null);
+  let creatingGoal = $state(false);
 
   const REVIEWER_NAME_KEY = 'cm_reviewer_name';
 
@@ -188,6 +194,79 @@
     {/if}
   </section>
 
+  {#if data.admin && data.selfAssessments.length > 0}
+    <section class="block">
+      <h2>Goals</h2>
+
+      {#if data.focusItems.overdue.length > 0 || data.focusItems.dueThisWeek.length > 0}
+        <div class="focus-panel">
+          <h3>Focus</h3>
+          {#if data.focusItems.overdue.length > 0}
+            <div class="focus-group focus-overdue">
+              <h4>Overdue</h4>
+              <ul>
+                {#each data.focusItems.overdue as item (item.goalId + (item.stepId ?? ''))}
+                  <li>{item.label} — <span class="focus-date">{item.dueDate}</span></li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
+          {#if data.focusItems.dueThisWeek.length > 0}
+            <div class="focus-group focus-due-soon">
+              <h4>Due this week</h4>
+              <ul>
+                {#each data.focusItems.dueThisWeek as item (item.goalId + (item.stepId ?? ''))}
+                  <li>{item.label} — <span class="focus-date">{item.dueDate}</span></li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
+        </div>
+      {/if}
+
+      {#if form?.goalError}
+        <p class="error">{form.goalError}</p>
+      {/if}
+
+      {#if editingGoal}
+        <GoalForm
+          goal={editingGoal}
+          action="?/updateGoal"
+          error={form?.goalError}
+          onCancel={() => (editingGoal = null)}
+          onSubmitted={() => (editingGoal = null)}
+        />
+      {:else if creatingGoal}
+        <GoalForm
+          goal={null}
+          action="?/createGoal"
+          error={form?.goalError}
+          onCancel={() => (creatingGoal = false)}
+          onSubmitted={() => (creatingGoal = false)}
+        />
+      {:else}
+        <button type="button" class="new-goal-btn" onclick={() => (creatingGoal = true)}>+ New goal</button>
+      {/if}
+
+      {#if data.goals.length === 0}
+        <p class="empty-state">No goals yet.</p>
+      {:else}
+        <div class="goals-list">
+          {#each data.goals as goal (goal.id)}
+            <GoalCard
+              {goal}
+              isOverdue={data.focus.overdueGoalIds.has(goal.id)}
+              isDueThisWeek={data.focus.dueSoonGoalIds.has(goal.id)}
+              overdueStepIds={data.focus.overdueStepIds}
+              dueSoonStepIds={data.focus.dueSoonStepIds}
+              onEdit={(g) => (editingGoal = g)}
+            />
+          {/each}
+        </div>
+      {/if}
+    </section>
+  {/if}
+
   <section class="block">
     <h2>Reviewer</h2>
 
@@ -253,6 +332,15 @@
                 title={formatDate(review.created_at)}
                 answers={review.answers}
               />
+            {/each}
+          </div>
+        {/if}
+
+        {#if data.publicGoals.length > 0}
+          <div class="history">
+            <h3>Her goals</h3>
+            {#each data.publicGoals as goal (goal.id)}
+              <GoalCard {goal} readOnly />
             {/each}
           </div>
         {/if}
@@ -377,6 +465,68 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  .focus-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .focus-group h4 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+  }
+
+  .focus-overdue h4 {
+    color: #b91c1c;
+  }
+
+  .focus-due-soon h4 {
+    color: #b45309;
+  }
+
+  .focus-group ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--color-text);
+  }
+
+  .focus-date {
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .new-goal-btn {
+    align-self: flex-start;
+    padding: 0.55rem 1.25rem;
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .new-goal-btn:hover {
+    background: var(--color-accent-high);
   }
 
   .radar-section {
