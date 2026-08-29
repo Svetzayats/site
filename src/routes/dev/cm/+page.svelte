@@ -25,8 +25,10 @@
     return idx >= 0 && idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
   }
 
-  let selfLevel = $state<Level>('E2');
+  let selfLevel = $state<Level>((data.selfAssessments[0]?.level as Level | undefined) ?? 'E2');
   const selfNextLevel = $derived(nextLevel(selfLevel));
+
+  let showSelfEvalForm = $state(data.selfAssessments.length === 0);
 
   let localReviewerName = $state<string | null>(data.reviewerName);
   let reviewerNameInput = $state('');
@@ -120,28 +122,34 @@
         <button type="submit">Sign in</button>
       </form>
     {:else}
-      <div class="level-picker">
-        <label for="self-level">Level</label>
-        <select id="self-level" bind:value={selfLevel}>
-          {#each LEVELS as level (level)}
-            <option value={level}>{level} — {LEVEL_META[level].title}</option>
-          {/each}
-        </select>
-      </div>
-
       {#if form?.selfError}
         <p class="error">{form.selfError}</p>
       {/if}
 
-      {#key selfLevel}
-        <CompetencyAssessmentForm
-          competencies={COMPETENCIES}
-          level={selfLevel}
-          nextLevel={selfNextLevel}
-          action="?/submitSelfAssessment"
-          submitLabel="Save self-assessment"
-        />
-      {/key}
+      {#if !showSelfEvalForm}
+        <button type="button" class="fill-self-review-btn" onclick={() => (showSelfEvalForm = true)}>
+          Fill self-review
+        </button>
+      {:else}
+        <div class="level-picker">
+          <label for="self-level">Level</label>
+          <select id="self-level" bind:value={selfLevel}>
+            {#each LEVELS as level (level)}
+              <option value={level}>{level} — {LEVEL_META[level].title}</option>
+            {/each}
+          </select>
+        </div>
+
+        {#key selfLevel}
+          <CompetencyAssessmentForm
+            competencies={COMPETENCIES}
+            level={selfLevel}
+            nextLevel={selfNextLevel}
+            action="?/submitSelfAssessment"
+            submitLabel="Save self-assessment"
+          />
+        {/key}
+      {/if}
 
       {#if data.radar}
         <div class="radar-section">
@@ -382,6 +390,22 @@
   .block h2 {
     font-size: 1.35rem;
     font-weight: 600;
+  }
+
+  .fill-self-review-btn {
+    align-self: flex-start;
+    padding: 0.55rem 1.25rem;
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .fill-self-review-btn:hover {
+    background: var(--color-accent-high);
   }
 
   .block h3 {
