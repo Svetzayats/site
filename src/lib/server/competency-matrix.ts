@@ -1,11 +1,11 @@
 import type { Level } from '$lib/data/competency-matrix';
 
-export type Rating = 'below' | 'at' | 'above';
+export type Rating = 'below' | 'at' | 'above' | 'skip';
 
 export interface AnswerInput {
 	competencyId: string;
 	rating: Rating;
-	level: Level;
+	level: Level | null;
 	notes: string;
 	accomplishments: string;
 	opportunities: string;
@@ -35,6 +35,7 @@ export interface Review {
 	reviewerName: string;
 	selfAssessmentId: string;
 	created_at: string;
+	updated_at: string;
 	answers: Answer[];
 }
 
@@ -165,9 +166,9 @@ export async function createReview(
 
 	await db
 		.prepare(
-			'INSERT INTO cm_reviews (id, reviewer_name, self_assessment_id, created_at) VALUES (?, ?, ?, ?)',
+			'INSERT INTO cm_reviews (id, reviewer_name, self_assessment_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
 		)
-		.bind(id, reviewerName, selfAssessmentId, created_at)
+		.bind(id, reviewerName, selfAssessmentId, created_at, created_at)
 		.run();
 
 	if (answers.length > 0) {
@@ -177,11 +178,28 @@ export async function createReview(
 	return id;
 }
 
+export async function updateReview(
+	db: D1Database,
+	reviewId: string,
+	answers: AnswerInput[],
+): Promise<void> {
+	const updated_at = new Date().toISOString();
+
+	const statements = [
+		db.prepare('UPDATE cm_reviews SET updated_at = ? WHERE id = ?').bind(updated_at, reviewId),
+		db.prepare('DELETE FROM cm_review_answers WHERE review_id = ?').bind(reviewId),
+		...insertAnswerStatements(db, 'cm_review_answers', 'review_id', reviewId, answers),
+	];
+
+	await db.batch(statements);
+}
+
 interface ReviewRow {
 	id: string;
 	reviewer_name: string;
 	self_assessment_id: string;
 	created_at: string;
+	updated_at: string | null;
 }
 
 async function hydrateReviews(db: D1Database, rows: ReviewRow[]): Promise<Review[]> {
@@ -193,16 +211,29 @@ async function hydrateReviews(db: D1Database, rows: ReviewRow[]): Promise<Review
 			reviewerName: row.reviewer_name,
 			selfAssessmentId: row.self_assessment_id,
 			created_at: row.created_at,
+			updated_at: row.updated_at ?? row.created_at,
 			answers,
 		});
 	}
 	return reviews;
 }
 
+export async function getReviewById(db: D1Database, id: string): Promise<Review | null> {
+	const row = await db
+		.prepare(
+			'SELECT id, reviewer_name, self_assessment_id, created_at, updated_at FROM cm_reviews WHERE id = ?',
+		)
+		.bind(id)
+		.first<ReviewRow>();
+	if (!row) return null;
+	const reviews = await hydrateReviews(db, [row]);
+	return reviews[0];
+}
+
 export async function getReviewsByReviewer(db: D1Database, reviewerName: string): Promise<Review[]> {
 	const result = await db
 		.prepare(
-			'SELECT id, reviewer_name, self_assessment_id, created_at FROM cm_reviews WHERE reviewer_name = ? ORDER BY created_at DESC',
+			'SELECT id, reviewer_name, self_assessment_id, created_at, updated_at FROM cm_reviews WHERE reviewer_name = ? ORDER BY updated_at DESC',
 		)
 		.bind(reviewerName)
 		.all<ReviewRow>();
@@ -212,7 +243,7 @@ export async function getReviewsByReviewer(db: D1Database, reviewerName: string)
 export async function getAllReviews(db: D1Database): Promise<Review[]> {
 	const result = await db
 		.prepare(
-			'SELECT id, reviewer_name, self_assessment_id, created_at FROM cm_reviews ORDER BY created_at DESC',
+			'SELECT id, reviewer_name, self_assessment_id, created_at, updated_at FROM cm_reviews ORDER BY created_at DESC',
 		)
 		.all<ReviewRow>();
 	return hydrateReviews(db, result.results);

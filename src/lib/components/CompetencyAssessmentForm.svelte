@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { browser } from '$app/environment';
   import { diffWords } from '$lib/diff-words';
   import { LEVELS, LEVEL_META, type CompetencyRow, type Level } from '$lib/data/competency-matrix';
   import type { Answer } from '$lib/server/competency-matrix';
@@ -16,6 +17,15 @@
     /** Someone else's answers to show alongside each question, e.g. the self-assessment a reviewer is reviewing against. */
     referenceAnswers?: Map<string, Answer>;
     referenceLabel?: string;
+    /** Previously saved answers to prefill this form with, e.g. when re-opening a review for editing. */
+    initialAnswers?: Map<string, Answer>;
+    /** ISO timestamp of when initialAnswers was last saved server-side, used to ignore stale local drafts. */
+    initialUpdatedAt?: string;
+    /** Whether every skill must have a level selected before submit. Defaults to true (self-assessment). */
+    requireAllAnswers?: boolean;
+    /** localStorage key to autosave this form's in-progress values under. Omit to disable autosave. */
+    draftKey?: string;
+    skipLabel?: string;
   }
 
   let {
@@ -29,13 +39,68 @@
     onSubmitted,
     referenceAnswers,
     referenceLabel = 'Self-assessment',
+    initialAnswers,
+    initialUpdatedAt,
+    requireAllAnswers = true,
+    draftKey,
+    skipLabel = 'Skip',
   }: Props = $props();
 
   const REFERENCE_RATING_LABEL: Record<string, string> = {
     below: 'Not yet at level',
     at: 'At level',
     above: 'Exceeding level',
+    skip: 'Skipped',
   };
+
+  let formEl: HTMLFormElement | undefined = $state();
+
+  function collectFormValues(): Record<string, string> {
+    if (!formEl) return {};
+    const data = new FormData(formEl);
+    const values: Record<string, string> = {};
+    for (const [key, value] of data.entries()) {
+      if (typeof value === 'string') values[key] = value;
+    }
+    return values;
+  }
+
+  function saveDraft() {
+    if (!browser || !draftKey || !formEl) return;
+    localStorage.setItem(
+      draftKey,
+      JSON.stringify({ savedAt: new Date().toISOString(), fields: collectFormValues() }),
+    );
+  }
+
+  function restoreDraft() {
+    if (!browser || !draftKey || !formEl) return;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { savedAt?: string; fields?: Record<string, string> };
+      if (initialUpdatedAt && parsed.savedAt && parsed.savedAt <= initialUpdatedAt) return;
+      for (const [name, value] of Object.entries(parsed.fields ?? {})) {
+        const el = formEl.elements.namedItem(name);
+        if (el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
+          el.value = value;
+        }
+      }
+    } catch {
+      // corrupt draft, ignore
+    }
+  }
+
+  function clearDraft() {
+    if (browser && draftKey) localStorage.removeItem(draftKey);
+  }
+
+  $effect(() => {
+    if (!browser || !draftKey || !formEl) return;
+    restoreDraft();
+    const interval = setInterval(saveDraft, 2000);
+    return () => clearInterval(interval);
+  });
 
   const grouped = $derived.by(() => {
     const groups: { theme: string; rows: CompetencyRow[] }[] = [];
@@ -54,10 +119,14 @@
 <form
   method="POST"
   {action}
+  bind:this={formEl}
   use:enhance={() => {
-    return async ({ update }) => {
+    return async ({ result, update }) => {
       await update();
-      onSubmitted?.();
+      if (result.type === 'success') {
+        clearDraft();
+        onSubmitted?.();
+      }
     };
   }}
   class="assessment-form"
@@ -76,38 +145,44 @@
       <h3 class="theme-title">{theme}</h3>
 
       {#each rows as row (row.id)}
+        {@const initial = initialAnswers?.get(row.id)}
+        {@const initialLevelValue = initial ? (initial.rating === 'skip' ? 'skip' : (initial.level ?? '')) : ''}
         <fieldset class="skill-block">
           <legend>{row.skill ?? row.area}</legend>
 
           <div class="hints">
-            <div class="hint">
-              <span class="hint-label">{level} — current</span>
-              <p>{row.descriptions[level]}</p>
-            </div>
-            {#if nextLevel}
-              <div class="hint hint-next">
-                <span class="hint-label">{nextLevel} — next</span>
+            {#each LEVELS as lvl, i (lvl)}
+              <div
+                class="hint"
+                class:hint-current={lvl === level}
+                class:hint-next={lvl === nextLevel}
+              >
+                <span class="hint-label">
+                  {lvl} — {LEVEL_META[lvl].title}{#if lvl === level}
+                    {' '}(current){:else if lvl === nextLevel}
+                    {' '}(next){/if}
+                </span>
                 <p>
-                  {#each diffWords(row.descriptions[level], row.descriptions[nextLevel]) as segment, si (si)}
-                    {#if segment.changed}<mark>{segment.text}</mark>{:else}{segment.text}{/if}
-                  {/each}
+                  {#if i === 0}
+                    {row.descriptions[lvl]}
+                  {:else}
+                    {#each diffWords(row.descriptions[LEVELS[i - 1]], row.descriptions[lvl]) as segment, si (si)}
+                      {#if segment.changed}<mark>{segment.text}</mark>{:else}{segment.text}{/if}
+                    {/each}
+                  {/if}
                 </p>
               </div>
-            {:else}
-              <div class="hint">
-                <span class="hint-label">Top level</span>
-                <p>This is the highest level on the matrix — no "next" to compare against.</p>
-              </div>
-            {/if}
+            {/each}
           </div>
 
           <div class="level-select-group">
             <label class="level-select-label" for="level_{row.id}">Level</label>
-            <select id="level_{row.id}" name="level_{row.id}" required>
-              <option value="" disabled selected>Select level</option>
+            <select id="level_{row.id}" name="level_{row.id}" required={requireAllAnswers} value={initialLevelValue}>
+              <option value="" disabled>Select level</option>
               {#each LEVELS as lvl (lvl)}
                 <option value={lvl}>{lvl} — {LEVEL_META[lvl].title}</option>
               {/each}
+              <option value="skip">{skipLabel}</option>
             </select>
           </div>
 
@@ -118,6 +193,7 @@
               name="accomplishments_{row.id}"
               rows="2"
               placeholder="Concrete evidence/examples backing up the level you picked."
+              value={initial?.accomplishments ?? ''}
             ></textarea>
           </div>
 
@@ -128,12 +204,18 @@
               name="opportunities_{row.id}"
               rows="2"
               placeholder="What's needed to move up on this specific skill."
+              value={initial?.opportunities ?? ''}
             ></textarea>
           </div>
 
           <div class="field">
             <label class="field-label" for="notes_{row.id}">Notes</label>
-            <textarea id="notes_{row.id}" name="notes_{row.id}" rows="2" placeholder="Anything else worth noting."
+            <textarea
+              id="notes_{row.id}"
+              name="notes_{row.id}"
+              rows="2"
+              placeholder="Anything else worth noting."
+              value={initial?.notes ?? ''}
             ></textarea>
           </div>
 
@@ -230,10 +312,23 @@
     margin-bottom: 0.2rem;
   }
 
-  .hint-next mark {
+  .hint mark {
     background: none;
     color: inherit;
     font-weight: 700;
+  }
+
+  .hint-current {
+    background: var(--color-accent-low);
+    border: 1px solid var(--color-accent);
+  }
+
+  .hint-current .hint-label {
+    color: var(--color-accent-high);
+  }
+
+  .hint-next {
+    border: 1px dashed var(--color-accent);
   }
 
   .reference-answer {
@@ -280,6 +375,11 @@
   .reference-rating.rating-above {
     background: color-mix(in srgb, #10b981 18%, var(--color-bg));
     color: #047857;
+  }
+
+  .reference-rating.rating-skip {
+    background: color-mix(in srgb, var(--color-text-muted) 20%, var(--color-bg));
+    color: var(--color-text-muted);
   }
 
   .reference-notes {

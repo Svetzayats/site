@@ -12,12 +12,16 @@ import {
 import {
 	createSelfAssessment,
 	createReview,
+	updateReview,
+	getReviewById,
+	getSelfAssessment,
 	getAllSelfAssessmentsDetailed,
 	getAllReviews,
 	getLatestSelfAssessment,
 	getReviewsByReviewer,
 	type Answer,
 	type AnswerInput,
+	type Rating,
 } from '$lib/server/competency-matrix';
 import {
 	createGoal as dbCreateGoal,
@@ -99,11 +103,21 @@ function parseStepsJson(raw: string | null): GoalStep[] {
 	}
 }
 
+function parseLevelField(
+	value: string | null,
+	targetLevel: Level,
+): { level: Level | null; rating: Rating } | null {
+	if (isLevel(value)) return { level: value, rating: compareLevels(value, targetLevel) };
+	if (value === 'skip') return { level: null, rating: 'skip' };
+	return null;
+}
+
 function parseAnswers(formData: FormData, targetLevel: Level): AnswerInput[] {
 	const answers: AnswerInput[] = [];
 	for (const competency of COMPETENCIES) {
-		const level = formData.get(`level_${competency.id}`) as string | null;
-		if (isLevel(level)) {
+		const rawLevel = formData.get(`level_${competency.id}`) as string | null;
+		const parsed = parseLevelField(rawLevel, targetLevel);
+		if (parsed) {
 			const notes = (formData.get(`notes_${competency.id}`) as string | null) ?? '';
 			const accomplishments =
 				(formData.get(`accomplishments_${competency.id}`) as string | null) ?? '';
@@ -111,8 +125,8 @@ function parseAnswers(formData: FormData, targetLevel: Level): AnswerInput[] {
 				(formData.get(`opportunities_${competency.id}`) as string | null) ?? '';
 			answers.push({
 				competencyId: competency.id,
-				level,
-				rating: compareLevels(level, targetLevel),
+				level: parsed.level,
+				rating: parsed.rating,
 				notes: notes.trim(),
 				accomplishments: accomplishments.trim(),
 				opportunities: opportunities.trim(),
@@ -155,6 +169,19 @@ export const load: PageServerLoad = async ({ cookies, url, platform }) => {
 	const latestSelfAssessment = reviewer && db ? await getLatestSelfAssessment(db) : null;
 	const myReviews = reviewer && db && reviewerName ? await getReviewsByReviewer(db, reviewerName) : [];
 
+	const reviewerSelfAssessmentIds = Array.from(
+		new Set([
+			...myReviews.map((r) => r.selfAssessmentId),
+			...(latestSelfAssessment ? [latestSelfAssessment.id] : []),
+		]),
+	);
+	const reviewerSelfAssessments =
+		reviewer && db && reviewerSelfAssessmentIds.length > 0
+			? (await Promise.all(reviewerSelfAssessmentIds.map((id) => getSelfAssessment(db, id)))).filter(
+					(a) => a !== null,
+				)
+			: [];
+
 	const goals = admin && db && selfAssessments.length > 0 ? await getAllGoals(db) : [];
 	const focusItems = computeFocusItems(goals);
 	const focus = {
@@ -188,6 +215,7 @@ export const load: PageServerLoad = async ({ cookies, url, platform }) => {
 		allReviews,
 		latestSelfAssessment,
 		myReviews,
+		reviewerSelfAssessments,
 		radar,
 		goals,
 		focusItems,
@@ -261,13 +289,28 @@ export const actions: Actions = {
 			return fail(400, { reviewError: 'Missing reviewer name' });
 		}
 
-		const latest = await getLatestSelfAssessment(db);
-		if (!latest) {
-			return fail(400, { reviewError: 'There is no self-assessment to review yet' });
+		const selfAssessmentId = (formData.get('selfAssessmentId') as string | null)?.trim();
+		if (!selfAssessmentId) {
+			return fail(400, { reviewError: 'Missing self-assessment reference' });
 		}
 
-		const answers = parseAnswers(formData, latest.level as Level);
-		await createReview(db, reviewerName, latest.id, answers);
+		const assessment = await getSelfAssessment(db, selfAssessmentId);
+		if (!assessment) {
+			return fail(400, { reviewError: 'That self-assessment no longer exists' });
+		}
+
+		const answers = parseAnswers(formData, assessment.level as Level);
+		const reviewId = (formData.get('reviewId') as string | null)?.trim() || null;
+
+		if (reviewId) {
+			const existing = await getReviewById(db, reviewId);
+			if (!existing || existing.reviewerName !== reviewerName) {
+				return fail(403, { reviewError: 'You can only edit your own reviews' });
+			}
+			await updateReview(db, reviewId, answers);
+		} else {
+			await createReview(db, reviewerName, selfAssessmentId, answers);
+		}
 	},
 
 	createGoal: async ({ request, cookies, platform }) => {

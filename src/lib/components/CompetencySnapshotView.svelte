@@ -7,9 +7,19 @@
     title: string;
     answers: Answer[];
     open?: boolean;
+    /** Someone else's answers to show alongside each skill, e.g. the self-assessment a review was written against. */
+    referenceAnswers?: Map<string, Answer>;
+    referenceLabel?: string;
   }
 
-  let { competencies, title, answers, open = false }: Props = $props();
+  let {
+    competencies,
+    title,
+    answers,
+    open = false,
+    referenceAnswers,
+    referenceLabel = 'Self-assessment',
+  }: Props = $props();
 
   const byId = $derived(new Map(competencies.map((c) => [c.id, c])));
 
@@ -17,6 +27,7 @@
     below: 'Not yet at level',
     at: 'At level',
     above: 'Exceeding level',
+    skip: 'Skipped',
   };
 
   function skillLabel(competencyId: string): string {
@@ -27,10 +38,15 @@
   const grouped = $derived.by(() => {
     const workOn: Answer[] = [];
     const goingWell: Answer[] = [];
+    const skipped: Answer[] = [];
     for (const answer of answers) {
-      (answer.rating === 'below' ? workOn : goingWell).push(answer);
+      if (answer.rating === 'skip') {
+        skipped.push(answer);
+      } else {
+        (answer.rating === 'below' ? workOn : goingWell).push(answer);
+      }
     }
-    return { workOn, goingWell };
+    return { workOn, goingWell, skipped };
   });
 </script>
 
@@ -63,6 +79,16 @@
           </ul>
         {/if}
       </div>
+      {#if grouped.skipped.length > 0}
+        <div class="summary-col summary-skipped">
+          <h4>Skipped</h4>
+          <ul>
+            {#each grouped.skipped as answer (answer.competencyId)}
+              <li>{skillLabel(answer.competencyId)}</li>
+            {/each}
+          </ul>
+        </div>
+      {/if}
     </div>
   {/if}
 
@@ -84,6 +110,29 @@
         {/if}
         {#if answer.notes}
           <p class="notes"><strong>Notes:</strong> {answer.notes}</p>
+        {/if}
+
+        {#if referenceAnswers}
+          {@const ref = referenceAnswers.get(answer.competencyId)}
+          {#if ref}
+            <details class="reference-answer">
+              <summary class="reference-label">{referenceLabel}</summary>
+              <div class="reference-body">
+                <span class="reference-rating rating-{ref.rating}">
+                  {ref.level ?? RATING_LABEL[ref.rating] ?? ref.rating}
+                </span>
+                {#if ref.accomplishments}
+                  <p class="reference-notes"><strong>Accomplishments:</strong> {ref.accomplishments}</p>
+                {/if}
+                {#if ref.opportunities}
+                  <p class="reference-notes"><strong>Opportunities:</strong> {ref.opportunities}</p>
+                {/if}
+                {#if ref.notes}
+                  <p class="reference-notes"><strong>Notes:</strong> {ref.notes}</p>
+                {/if}
+              </div>
+            </details>
+          {/if}
         {/if}
       </li>
     {/each}
@@ -121,6 +170,10 @@
 
   .summary-going-well {
     background: color-mix(in srgb, #10b981 8%, var(--color-bg));
+  }
+
+  .summary-skipped {
+    background: color-mix(in srgb, var(--color-text-muted) 10%, var(--color-bg));
   }
 
   .summary-col h4 {
@@ -197,10 +250,53 @@
     color: #047857;
   }
 
+  .rating-skip {
+    background: color-mix(in srgb, var(--color-text-muted) 20%, var(--color-bg));
+    color: var(--color-text-muted);
+  }
+
   .notes {
     margin-top: 0.4rem;
     font-size: 0.85rem;
     color: var(--color-text-muted);
+    white-space: pre-wrap;
+  }
+
+  .reference-answer {
+    margin-top: 0.5rem;
+    background: var(--color-accent-low);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .reference-label {
+    display: block;
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent-high);
+  }
+
+  .reference-body {
+    margin-top: 0.5rem;
+  }
+
+  .reference-rating {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-lg);
+    white-space: nowrap;
+  }
+
+  .reference-notes {
+    margin-top: 0.4rem;
+    color: var(--color-text);
     white-space: pre-wrap;
   }
 </style>

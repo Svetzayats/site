@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
+  import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import CompetencyTable from '$lib/components/CompetencyTable.svelte';
   import CompetencyAssessmentForm from '$lib/components/CompetencyAssessmentForm.svelte';
@@ -11,6 +12,7 @@
   import GoalForm from '$lib/components/GoalForm.svelte';
   import { COMPETENCIES, LEVELS, LEVEL_META, MAX_LEVEL_SCORE, type Level } from '$lib/data/competency-matrix';
   import type { Goal } from '$lib/server/goals';
+  import type { Review } from '$lib/server/competency-matrix';
   import type { PageData, ActionData } from './$types';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -71,15 +73,25 @@
     reviewerNameInput = '';
   }
 
-  const reviewLatestLevel = $derived(
-    data.latestSelfAssessment ? (data.latestSelfAssessment.level as Level) : null,
-  );
-  const reviewNextLevel = $derived(reviewLatestLevel ? nextLevel(reviewLatestLevel) : null);
-  const selfAssessmentAnswerMap = $derived(
-    data.latestSelfAssessment
-      ? new Map(data.latestSelfAssessment.answers.map((a) => [a.competencyId, a]))
-      : undefined,
-  );
+  const selfAssessmentsById = $derived(new Map(data.reviewerSelfAssessments.map((a) => [a.id, a])));
+
+  /** 'new' to start a blank review against the latest self-assessment, a Review to edit an existing one, or null to show the list. */
+  let reviewFormTarget = $state<'new' | Review | null>(null);
+
+  function newReviewDraftKey(selfAssessmentId: string): string {
+    return `cm_review_draft_new_${localReviewerName}_${selfAssessmentId}`;
+  }
+
+  function editReviewDraftKey(reviewId: string): string {
+    return `cm_review_draft_edit_${reviewId}`;
+  }
+
+  function startNewReview() {
+    if (browser && data.latestSelfAssessment) {
+      localStorage.removeItem(newReviewDraftKey(data.latestSelfAssessment.id));
+    }
+    reviewFormTarget = 'new';
+  }
 
   function formatDate(iso: string): string {
     return new Date(iso).toLocaleString(undefined, {
@@ -147,6 +159,8 @@
             nextLevel={selfNextLevel}
             action="?/submitSelfAssessment"
             submitLabel="Save self-assessment"
+            skipLabel="Skip — not applicable at my level"
+            draftKey="cm_draft_self"
           />
         {/key}
       {/if}
@@ -158,7 +172,7 @@
             Average score per theme (E1=0 … E6={MAX_LEVEL_SCORE}) for the latest self-assessment{data
               .radar.reviewer
               ? ' vs. reviewer average'
-              : ''}.
+              : ''}. Themes with no answered (non-skipped) skills render as the lowest level.
           </p>
           <CompetencyRadarChart
             themes={data.radar.themes}
@@ -309,39 +323,85 @@
         <p class="empty-state">No self-assessment has been submitted yet — nothing to review.</p>
       {:else}
         <p class="review-context">
-          Reviewing her <strong>{data.latestSelfAssessment.level} — {LEVEL_META[
+          Latest self-assessment: <strong>{data.latestSelfAssessment.level} — {LEVEL_META[
             data.latestSelfAssessment.level as Level
-          ].title}</strong>
-          self-assessment, submitted {formatDate(data.latestSelfAssessment.created_at)}.
+          ].title}</strong>, submitted {formatDate(data.latestSelfAssessment.created_at)}.
         </p>
 
         {#if form?.reviewError}
           <p class="error">{form.reviewError}</p>
         {/if}
 
-        {#if reviewLatestLevel}
-          <CompetencyAssessmentForm
-            competencies={COMPETENCIES}
-            level={reviewLatestLevel}
-            nextLevel={reviewNextLevel}
-            action="?/submitReview"
-            submitLabel="Submit review"
-            hiddenFields={{ reviewerName: localReviewerName }}
-            referenceAnswers={selfAssessmentAnswerMap}
-          />
-        {/if}
-
-        {#if data.myReviews.length > 0}
-          <div class="history">
-            <h3>Your past reviews</h3>
-            {#each data.myReviews as review (review.id)}
-              <CompetencySnapshotView
+        {#if reviewFormTarget}
+          {@const editingReview = reviewFormTarget === 'new' ? null : reviewFormTarget}
+          <!-- Editing must stay pinned to the review's original self-assessment, not whatever is
+               currently latest — only "Start new review" resolves against data.latestSelfAssessment. -->
+          {@const targetSelfAssessment = editingReview
+            ? selfAssessmentsById.get(editingReview.selfAssessmentId)
+            : data.latestSelfAssessment}
+          {#if targetSelfAssessment}
+            {#key editingReview?.id ?? 'new'}
+              <CompetencyAssessmentForm
                 competencies={COMPETENCIES}
-                title={formatDate(review.created_at)}
-                answers={review.answers}
+                level={targetSelfAssessment.level as Level}
+                nextLevel={nextLevel(targetSelfAssessment.level as Level)}
+                action="?/submitReview"
+                submitLabel={editingReview ? 'Update review' : 'Save review'}
+                hiddenFields={{
+                  reviewerName: localReviewerName,
+                  selfAssessmentId: targetSelfAssessment.id,
+                  reviewId: editingReview?.id ?? '',
+                }}
+                referenceAnswers={new Map(targetSelfAssessment.answers.map((a) => [a.competencyId, a]))}
+                initialAnswers={editingReview
+                  ? new Map(editingReview.answers.map((a) => [a.competencyId, a]))
+                  : undefined}
+                initialUpdatedAt={editingReview?.updated_at}
+                requireAllAnswers={false}
+                skipLabel="Skip — not confident giving feedback"
+                draftKey={editingReview
+                  ? editReviewDraftKey(editingReview.id)
+                  : newReviewDraftKey(targetSelfAssessment.id)}
+                onSubmitted={() => (reviewFormTarget = null)}
               />
-            {/each}
-          </div>
+            {/key}
+          {/if}
+          <button type="button" class="link-btn" onclick={() => (reviewFormTarget = null)}>
+            Cancel, back to your reviews
+          </button>
+        {:else}
+          <button type="button" class="fill-self-review-btn" onclick={startNewReview}>
+            Start new review
+          </button>
+
+          {#if data.myReviews.length > 0}
+            <div class="history">
+              <h3>Your reviews</h3>
+              {#each data.myReviews as review (review.id)}
+                {@const reviewedAssessment = selfAssessmentsById.get(review.selfAssessmentId)}
+                <div class="review-row">
+                  <CompetencySnapshotView
+                    competencies={COMPETENCIES}
+                    title="{reviewedAssessment
+                      ? `${reviewedAssessment.level} — ${LEVEL_META[reviewedAssessment.level as Level].title}`
+                      : 'Review'} · last updated {formatDate(review.updated_at)}"
+                    answers={review.answers}
+                    referenceAnswers={reviewedAssessment
+                      ? new Map(reviewedAssessment.answers.map((a) => [a.competencyId, a]))
+                      : undefined}
+                    referenceLabel="Self-assessment — submitted {reviewedAssessment
+                      ? formatDate(reviewedAssessment.created_at)
+                      : ''}"
+                  />
+                  <button type="button" class="edit-review-btn" onclick={() => (reviewFormTarget = review)}>
+                    Edit
+                  </button>
+                </div>
+              {/each}
+            </div>
+          {:else}
+            <p class="empty-state">You haven't started a review yet.</p>
+          {/if}
         {/if}
 
         {#if data.publicGoals.length > 0}
@@ -578,6 +638,32 @@
 
   .review-context strong {
     color: var(--color-accent-high);
+  }
+
+  .review-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .edit-review-btn {
+    align-self: flex-start;
+    padding: 0.55rem 1.25rem;
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .edit-review-btn:hover {
+    background: var(--color-accent-high);
   }
 
   .link-btn {
