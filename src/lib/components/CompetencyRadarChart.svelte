@@ -71,11 +71,18 @@
     }),
   );
 
+  /**
+   * Every axis shares the same center point, so a literal 0 (or "no data") fraction plots every
+   * such vertex on top of each other — the polygon collapses into a spike toward whichever axis
+   * has a real value instead of a readable shape. A small floor keeps every vertex visible.
+   */
+  const MIN_FRACTION = 0.05;
+
   function seriesPolygon(s: Series): string {
     return themes
       .map((theme, i) => {
         const value = s.valuesByTheme[theme];
-        const fraction = value == null ? 0 : value / maxScore;
+        const fraction = value == null ? MIN_FRACTION : Math.max(value / maxScore, MIN_FRACTION);
         const p = pointFor(i, themes.length, fraction);
         return `${p.x},${p.y}`;
       })
